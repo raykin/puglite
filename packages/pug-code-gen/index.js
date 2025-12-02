@@ -18,7 +18,6 @@ var WHITE_SPACE_SENSITIVE_TAGS = {
 
 var INTERNAL_VARIABLES = [
   'pug',
-  'pug_mixins',
   'pug_interp',
   'pug_debug_filename',
   'pug_debug_line',
@@ -87,8 +86,6 @@ function Compiler(node, options) {
   this.indents = 0;
   this.parentIndents = 0;
   this.terse = false;
-  this.mixins = {};
-  this.dynamicMixins = false;
   this.eachCount = 0;
   if (options.doctype) this.setDoctype(options.doctype);
   this.runtimeFunctionsUsed = [];
@@ -132,24 +129,6 @@ Compiler.prototype = {
     if (this.pp) this.buf.push('var pug_indent = [];');
     this.lastBufferedIdx = -1;
     this.visit(this.node);
-    if (!this.dynamicMixins) {
-      // if there are no dynamic mixins we can remove any un-used mixins
-      var mixinNames = Object.keys(this.mixins);
-      for (var i = 0; i < mixinNames.length; i++) {
-        var mixin = this.mixins[mixinNames[i]];
-        if (!mixin.used) {
-          for (var x = 0; x < mixin.instances.length; x++) {
-            for (
-              var y = mixin.instances[x].start;
-              y < mixin.instances[x].end;
-              y++
-            ) {
-              this.buf[y] = '';
-            }
-          }
-        }
-      }
-    }
     var js = this.buf.join('\n');
     var globals = this.options.globals
       ? this.options.globals.concat(INTERNAL_VARIABLES)
@@ -193,7 +172,7 @@ Compiler.prototype = {
       buildRuntime(this.runtimeFunctionsUsed) +
       'function ' +
       (this.options.templateName || 'template') +
-      '(locals) {var pug_html = "", pug_mixins = {}, pug_interp;' +
+      '(locals) {var pug_html = "", pug_interp;' +
       js +
       ';return pug_html;}'
     );
@@ -477,14 +456,7 @@ Compiler.prototype = {
    */
 
   visitMixinBlock: function(block) {
-    if (this.pp)
-      this.buf.push(
-        'pug_indent.push(' +
-          stringify(Array(this.indents + 1).join(this.pp)) +
-          ');'
-      );
-    this.buf.push('block && block();');
-    if (this.pp) this.buf.push('pug_indent.pop();');
+    throw new Error('Mixins are not supported in puglite. Please remove mixin usage.');
   },
 
   /**
@@ -514,113 +486,7 @@ Compiler.prototype = {
    */
 
   visitMixin: function(mixin) {
-    var name = 'pug_mixins[';
-    var args = mixin.args || '';
-    var block = mixin.block;
-    var attrs = mixin.attrs;
-    var attrsBlocks = this.attributeBlocks(mixin.attributeBlocks);
-    var pp = this.pp;
-    var dynamic = mixin.name[0] === '#';
-    var key = mixin.name;
-    if (dynamic) this.dynamicMixins = true;
-    name +=
-      (dynamic
-        ? mixin.name.substr(2, mixin.name.length - 3)
-        : '"' + mixin.name + '"') + ']';
-
-    this.mixins[key] = this.mixins[key] || {used: false, instances: []};
-    if (mixin.call) {
-      this.mixins[key].used = true;
-      if (pp)
-        this.buf.push(
-          'pug_indent.push(' +
-            stringify(Array(this.indents + 1).join(pp)) +
-            ');'
-        );
-      if (block || attrs.length || attrsBlocks.length) {
-        this.buf.push(name + '.call({');
-
-        if (block) {
-          this.buf.push('block: function(){');
-
-          // Render block with no indents, dynamically added when rendered
-          this.parentIndents++;
-          var _indents = this.indents;
-          this.indents = 0;
-          this.visit(mixin.block, mixin);
-          this.indents = _indents;
-          this.parentIndents--;
-
-          if (attrs.length || attrsBlocks.length) {
-            this.buf.push('},');
-          } else {
-            this.buf.push('}');
-          }
-        }
-
-        if (attrsBlocks.length) {
-          if (attrs.length) {
-            var val = this.attrs(attrs);
-            attrsBlocks.unshift(val);
-          }
-          if (attrsBlocks.length > 1) {
-            this.buf.push(
-              'attributes: ' +
-                this.runtime('merge') +
-                '([' +
-                attrsBlocks.join(',') +
-                '])'
-            );
-          } else {
-            this.buf.push('attributes: ' + attrsBlocks[0]);
-          }
-        } else if (attrs.length) {
-          var val = this.attrs(attrs);
-          this.buf.push('attributes: ' + val);
-        }
-
-        if (args) {
-          this.buf.push('}, ' + args + ');');
-        } else {
-          this.buf.push('});');
-        }
-      } else {
-        this.buf.push(name + '(' + args + ');');
-      }
-      if (pp) this.buf.push('pug_indent.pop();');
-    } else {
-      var mixin_start = this.buf.length;
-      args = args ? args.split(',') : [];
-      var rest;
-      if (args.length && /^\.\.\./.test(args[args.length - 1].trim())) {
-        rest = args
-          .pop()
-          .trim()
-          .replace(/^\.\.\./, '');
-      }
-      // we need use pug_interp here for v8: https://code.google.com/p/v8/issues/detail?id=4165
-      // once fixed, use this: this.buf.push(name + ' = function(' + args.join(',') + '){');
-      this.buf.push(name + ' = pug_interp = function(' + args.join(',') + '){');
-      this.buf.push(
-        'var block = (this && this.block), attributes = (this && this.attributes) || {};'
-      );
-      if (rest) {
-        this.buf.push('var ' + rest + ' = [];');
-        this.buf.push(
-          'for (pug_interp = ' +
-            args.length +
-            '; pug_interp < arguments.length; pug_interp++) {'
-        );
-        this.buf.push('  ' + rest + '.push(arguments[pug_interp]);');
-        this.buf.push('}');
-      }
-      this.parentIndents++;
-      this.visit(block, mixin);
-      this.parentIndents--;
-      this.buf.push('};');
-      var mixin_end = this.buf.length;
-      this.mixins[key].instances.push({start: mixin_start, end: mixin_end});
-    }
+    throw new Error('Mixins are not supported in puglite. Please remove mixin usage.');
   },
 
   /**

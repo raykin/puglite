@@ -4,7 +4,6 @@ exports[`pug .compileClient() should support module syntax in pug.compileClient(
 "var pug = require("pug-runtime");
 function template(locals) {
   var pug_html = "",
-    pug_mixins = {},
     pug_interp;
   var pug_debug_filename, pug_debug_line;
   try {
@@ -88,7 +87,6 @@ function pug_rethrow(e, n, r, t) {
 }
 function template(locals) {
   var pug_html = "",
-    pug_mixins = {},
     pug_interp;
   var pug_debug_filename, pug_debug_line;
   try {
