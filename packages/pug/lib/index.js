@@ -15,8 +15,6 @@ var path = require('path');
 var lex = require('pug-lexer');
 var stripComments = require('pug-strip-comments');
 var parse = require('pug-parser');
-var load = require('pug-load');
-var link = require('pug-linker');
 var generateCode = require('pug-code-gen');
 var runtime = require('pug-runtime');
 var runtimeWrap = require('pug-runtime/wrap');
@@ -73,101 +71,56 @@ function compileBody(str, options) {
   debug_sources[options.filename] = str;
   var dependencies = [];
   var plugins = options.plugins || [];
-  var ast = load.string(str, {
+  // Lex
+  var lexOptions = {
     filename: options.filename,
-    basedir: options.basedir,
-    lex: function(str, options) {
-      var lexOptions = {};
-      Object.keys(options).forEach(function(key) {
-        lexOptions[key] = options[key];
-      });
-      lexOptions.plugins = plugins
-        .filter(function(plugin) {
-          return !!plugin.lex;
-        })
-        .map(function(plugin) {
-          return plugin.lex;
-        });
-      var contents = applyPlugins(
-        str,
-        {filename: options.filename},
-        plugins,
-        'preLex'
-      );
-      return applyPlugins(
-        lex(contents, lexOptions),
-        options,
-        plugins,
-        'postLex'
-      );
-    },
-    parse: function(tokens, options) {
-      tokens = tokens.map(function(token) {
-        if (token.type === 'path' && path.extname(token.val) === '') {
-          return {
-            type: 'path',
-            loc: token.loc,
-            val: token.val + '.pug',
-          };
-        }
-        return token;
-      });
-      tokens = stripComments(tokens, options);
-      tokens = applyPlugins(tokens, options, plugins, 'preParse');
-      var parseOptions = {};
-      Object.keys(options).forEach(function(key) {
-        parseOptions[key] = options[key];
-      });
-      parseOptions.plugins = plugins
-        .filter(function(plugin) {
-          return !!plugin.parse;
-        })
-        .map(function(plugin) {
-          return plugin.parse;
-        });
+    plugins: plugins
+      .filter(function(plugin) {
+        return !!plugin.lex;
+      })
+      .map(function(plugin) {
+        return plugin.lex;
+      })
+  };
+  var contents = applyPlugins(
+    str,
+    {filename: options.filename},
+    plugins,
+    'preLex'
+  );
+  var tokens = applyPlugins(
+    lex(contents, lexOptions),
+    {filename: options.filename},
+    plugins,
+    'postLex'
+  );
 
-      return applyPlugins(
-        applyPlugins(
-          parse(tokens, parseOptions),
-          options,
-          plugins,
-          'postParse'
-        ),
-        options,
-        plugins,
-        'preLoad'
-      );
-    },
-    resolve: function(filename, source, loadOptions) {
-      var replacementFunc = findReplacementFunc(plugins, 'resolve');
-      if (replacementFunc) {
-        return replacementFunc(filename, source, options);
-      }
-
-      return load.resolve(filename, source, loadOptions);
-    },
-    read: function(filename, loadOptions) {
-      dependencies.push(filename);
-
-      var contents;
-
-      var replacementFunc = findReplacementFunc(plugins, 'read');
-      if (replacementFunc) {
-        contents = replacementFunc(filename, options);
-      } else {
-        contents = load.read(filename, loadOptions);
-      }
-
-      debug_sources[filename] = Buffer.isBuffer(contents)
-        ? contents.toString('utf8')
-        : contents;
-      return contents;
-    },
-  });
+  // Parse
+  tokens = stripComments(tokens, {filename: options.filename});
+  tokens = applyPlugins(tokens, {filename: options.filename}, plugins, 'preParse');
+  var parseOptions = {
+    filename: options.filename,
+    src: str,
+    plugins: plugins
+      .filter(function(plugin) {
+        return !!plugin.parse;
+      })
+      .map(function(plugin) {
+        return plugin.parse;
+      })
+  };
+  var ast = applyPlugins(
+    applyPlugins(
+      parse(tokens, parseOptions),
+      {filename: options.filename},
+      plugins,
+      'postParse'
+    ),
+    {filename: options.filename},
+    plugins,
+    'preLoad'
+  );
   ast = applyPlugins(ast, options, plugins, 'postLoad');
-  ast = applyPlugins(ast, options, plugins, 'preLink');
-  ast = link(ast);
-  ast = applyPlugins(ast, options, plugins, 'postLink');
 
   // Compile
   ast = applyPlugins(ast, options, plugins, 'preCodeGen');
