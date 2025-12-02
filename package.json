@@ -19,8 +19,8 @@
   "scripts": {
     "prettier:check": "prettier --ignore-path .gitignore --list-different './**/*.js'",
     "format": "prettier --ignore-path .gitignore --write './**/*.js'",
-    "build": "node scripts/prebuild && wsrun --stages --exclude-missing --fast-exit --collect-logs build && tsc --build scripts",
-    "pretest": "yarn build",
+    "build": "node scripts/prebuild && wsrun --bin /home/raykin/studio/puglite/scripts/npm-run.js --stages --exclude-missing --fast-exit --collect-logs build && tsc --build scripts",
+    "pretest": "npm run build",
     "test": "jest",
     "coverage": "jest --coverage",
     "coveralls": "jest --coverage --coverageReporters=text-lcov | coveralls",
