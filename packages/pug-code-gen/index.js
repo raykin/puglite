@@ -581,7 +581,7 @@ Compiler.prototype = {
    */
 
   visitInterpolatedTag: function(tag) {
-    return this.visitTag(tag, true);
+    throw new Error('Interpolation (#{var}) is not supported in puglite. Use your framework for data binding.');
   },
 
   /**
