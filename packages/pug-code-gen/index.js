@@ -373,9 +373,7 @@ Compiler.prototype = {
    */
 
   visitCase: function(node) {
-    this.buf.push('switch (' + node.expr + '){');
-    this.visit(node.block, node);
-    this.buf.push('}');
+    throw new Error('Case statements are not supported in puglite. Use your framework for logic.');
   },
 
   /**
@@ -386,15 +384,7 @@ Compiler.prototype = {
    */
 
   visitWhen: function(node) {
-    if ('default' == node.expr) {
-      this.buf.push('default:');
-    } else {
-      this.buf.push('case ' + node.expr + ':');
-    }
-    if (node.block) {
-      this.visit(node.block, node);
-      this.buf.push('  break;');
-    }
+    throw new Error('Case/when statements are not supported in puglite. Use your framework for logic.');
   },
 
   /**
@@ -655,27 +645,7 @@ Compiler.prototype = {
    */
 
   visitCode: function(code) {
-    // Wrap code blocks with {}.
-    // we only wrap unbuffered code blocks ATM
-    // since they are usually flow control
-
-    // Buffer code
-    if (code.buffer) {
-      var val = code.val.trim();
-      val = 'null == (pug_interp = ' + val + ') ? "" : pug_interp';
-      if (code.mustEscape !== false)
-        val = this.runtime('escape') + '(' + val + ')';
-      this.bufferExpression(val);
-    } else {
-      this.buf.push(code.val);
-    }
-
-    // Block support
-    if (code.block) {
-      if (!code.buffer) this.buf.push('{');
-      this.visit(code.block, code);
-      if (!code.buffer) this.buf.push('}');
-    }
+    throw new Error('Code blocks (= and -) are not supported in puglite. Use your framework for logic and data binding.');
   },
 
   /**
@@ -686,20 +656,7 @@ Compiler.prototype = {
    */
 
   visitConditional: function(cond) {
-    var test = cond.test;
-    this.buf.push('if (' + test + ') {');
-    this.visit(cond.consequent, cond);
-    this.buf.push('}');
-    if (cond.alternate) {
-      if (cond.alternate.type === 'Conditional') {
-        this.buf.push('else');
-        this.visitConditional(cond.alternate);
-      } else {
-        this.buf.push('else {');
-        this.visit(cond.alternate, cond);
-        this.buf.push('}');
-      }
-    }
+    throw new Error('Conditionals (if/else/unless) are not supported in puglite. Use your framework for logic.');
   },
 
   /**
@@ -710,10 +667,7 @@ Compiler.prototype = {
    */
 
   visitWhile: function(loop) {
-    var test = loop.test;
-    this.buf.push('while (' + test + ') {');
-    this.visit(loop.block, loop);
-    this.buf.push('}');
+    throw new Error('While loops are not supported in puglite. Use your framework for logic.');
   },
 
   /**
@@ -724,93 +678,11 @@ Compiler.prototype = {
    */
 
   visitEach: function(each) {
-    var indexVarName = each.key || 'pug_index' + this.eachCount;
-    this.eachCount++;
-
-    this.buf.push(
-      '' +
-        '// iterate ' +
-        each.obj +
-        '\n' +
-        ';(function(){\n' +
-        '  var $$obj = ' +
-        each.obj +
-        ';\n' +
-        "  if ('number' == typeof $$obj.length) {"
-    );
-
-    if (each.alternate) {
-      this.buf.push('    if ($$obj.length) {');
-    }
-
-    this.buf.push(
-      '' +
-        '      for (var ' +
-        indexVarName +
-        ' = 0, $$l = $$obj.length; ' +
-        indexVarName +
-        ' < $$l; ' +
-        indexVarName +
-        '++) {\n' +
-        '        var ' +
-        each.val +
-        ' = $$obj[' +
-        indexVarName +
-        '];'
-    );
-
-    this.visit(each.block, each);
-
-    this.buf.push('      }');
-
-    if (each.alternate) {
-      this.buf.push('    } else {');
-      this.visit(each.alternate, each);
-      this.buf.push('    }');
-    }
-
-    this.buf.push(
-      '' +
-        '  } else {\n' +
-        '    var $$l = 0;\n' +
-        '    for (var ' +
-        indexVarName +
-        ' in $$obj) {\n' +
-        '      $$l++;\n' +
-        '      var ' +
-        each.val +
-        ' = $$obj[' +
-        indexVarName +
-        '];'
-    );
-
-    this.visit(each.block, each);
-
-    this.buf.push('    }');
-    if (each.alternate) {
-      this.buf.push('    if ($$l === 0) {');
-      this.visit(each.alternate, each);
-      this.buf.push('    }');
-    }
-    this.buf.push('  }\n}).call(this);\n');
+    throw new Error('Each loops are not supported in puglite. Use your framework for iteration.');
   },
 
   visitEachOf: function(each) {
-    this.buf.push(
-      '' +
-        '// iterate ' +
-        each.obj +
-        '\n' +
-        'for (const ' +
-        each.val +
-        ' of ' +
-        each.obj +
-        ') {\n'
-    );
-
-    this.visit(each.block, each);
-
-    this.buf.push('}\n');
+    throw new Error('Each loops are not supported in puglite. Use your framework for iteration.');
   },
 
   /**
