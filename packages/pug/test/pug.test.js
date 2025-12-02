@@ -1418,45 +1418,6 @@ describe('pug', function() {
     });
   });
 
-  describe('filter indentation', function() {
-    it('is maintained', function() {
-      var filters = {
-        indents: function(str) {
-          return str
-            .split(/\n/)
-            .map(function(line) {
-              return line.match(/^ */)[0].length;
-            })
-            .join(',');
-        },
-      };
-
-      var indents = [
-        ':indents',
-        '  x',
-        '   x',
-        '    x',
-        '     x',
-        '  x',
-        '      x',
-        '      x',
-        '     x',
-        '     x',
-        '      x',
-        '    x',
-        '  x',
-        '    x',
-        '  x',
-        '   x',
-      ].join('\n');
-
-      assert.equal(
-        pug.render(indents, {filters: filters}),
-        '0,1,2,3,0,4,4,3,3,4,2,0,2,0,1'
-      );
-    });
-  });
-
   describe('.compile().dependencies', function() {
     it('should list the filename of the template referenced by extends', function() {
       var filename = __dirname + '/dependencies/extends1.pug';

@@ -16,7 +16,6 @@ var lex = require('pug-lexer');
 var stripComments = require('pug-strip-comments');
 var parse = require('pug-parser');
 var load = require('pug-load');
-var filters = require('pug-filters');
 var link = require('pug-linker');
 var generateCode = require('pug-code-gen');
 var runtime = require('pug-runtime');
@@ -59,11 +58,6 @@ function findReplacementFunc(plugins, name) {
   return null;
 }
 
-/**
- * Object for global custom filters.  Note that you can also just pass a `filters`
- * option to any other method.
- */
-exports.filters = {};
 
 /**
  * Compile the given `str` of pug and return a function body.
@@ -171,25 +165,6 @@ function compileBody(str, options) {
     },
   });
   ast = applyPlugins(ast, options, plugins, 'postLoad');
-  ast = applyPlugins(ast, options, plugins, 'preFilters');
-
-  var filtersSet = {};
-  Object.keys(exports.filters).forEach(function(key) {
-    filtersSet[key] = exports.filters[key];
-  });
-  if (options.filters) {
-    Object.keys(options.filters).forEach(function(key) {
-      filtersSet[key] = options.filters[key];
-    });
-  }
-  ast = filters.handleFilters(
-    ast,
-    filtersSet,
-    options.filterOptions,
-    options.filterAliases
-  );
-
-  ast = applyPlugins(ast, options, plugins, 'postFilters');
   ast = applyPlugins(ast, options, plugins, 'preLink');
   ast = link(ast);
   ast = applyPlugins(ast, options, plugins, 'postLink');
@@ -278,9 +253,6 @@ exports.compile = function(str, options) {
     includeSources: options.compileDebug === true,
     debug: options.debug,
     templateName: 'template',
-    filters: options.filters,
-    filterOptions: options.filterOptions,
-    filterAliases: options.filterAliases,
     plugins: options.plugins,
   });
 
@@ -326,9 +298,6 @@ exports.compileClientWithDependenciesTracked = function(str, options) {
     includeSources: options.compileDebug,
     debug: options.debug,
     templateName: options.name || 'template',
-    filters: options.filters,
-    filterOptions: options.filterOptions,
-    filterAliases: options.filterAliases,
     plugins: options.plugins,
   });
 
