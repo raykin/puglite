@@ -339,13 +339,13 @@ Compiler.prototype = {
         ' which is not supported by pug-code-gen.';
       switch (node.type) {
         case 'Filter':
-          msg += ' Please use pug-filters to preprocess this AST.';
+          msg += ' Filters are not supported in puglite.';
           break;
         case 'Extends':
         case 'Include':
         case 'NamedBlock':
         case 'FileReference': // unlikely but for the sake of completeness
-          msg += ' Please use pug-linker to preprocess this AST.';
+          msg += ' Extends and includes are not supported in puglite.';
           break;
       }
       throw new TypeError(msg);

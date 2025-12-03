@@ -27,14 +27,10 @@ pug | [![NPM version](https://img.shields.io/npm/v/pug?style=for-the-badge)](htt
 pug-attrs | [![NPM version](https://img.shields.io/npm/v/pug-attrs?style=for-the-badge)](https://www.npmjs.com/package/pug-attrs)
 pug-code-gen | [![NPM version](https://img.shields.io/npm/v/pug-code-gen?style=for-the-badge)](https://www.npmjs.com/package/pug-code-gen)
 pug-error | [![NPM version](https://img.shields.io/npm/v/pug-error?style=for-the-badge)](https://www.npmjs.com/package/pug-error)
-pug-filters | [![NPM version](https://img.shields.io/npm/v/pug-filters?style=for-the-badge)](https://www.npmjs.com/package/pug-filters)
 pug-lexer | [![NPM version](https://img.shields.io/npm/v/pug-lexer?style=for-the-badge)](https://www.npmjs.com/package/pug-lexer)
-pug-linker | [![NPM version](https://img.shields.io/npm/v/pug-linker?style=for-the-badge)](https://www.npmjs.com/package/pug-linker)
-pug-load | [![NPM version](https://img.shields.io/npm/v/pug-load?style=for-the-badge)](https://www.npmjs.com/package/pug-load)
 pug-parser | [![NPM version](https://img.shields.io/npm/v/pug-parser?style=for-the-badge)](https://www.npmjs.com/package/pug-parser)
 pug-runtime | [![NPM version](https://img.shields.io/npm/v/pug-runtime?style=for-the-badge)](https://www.npmjs.com/package/pug-runtime)
 pug-strip-comments | [![NPM version](https://img.shields.io/npm/v/pug-strip-comments?style=for-the-badge)](https://www.npmjs.com/package/pug-strip-comments)
-pug-walk | [![NPM version](https://img.shields.io/npm/v/pug-walk?style=for-the-badge)](https://www.npmjs.com/package/pug-walk)
 <!-- VERSION_TABLE -->
 
 ## Rename from "Jade"
