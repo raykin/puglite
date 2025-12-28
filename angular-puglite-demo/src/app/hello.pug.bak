@@ -1,0 +1,10 @@
+.hello-container
+  h1 Hello from Puglite!
+  p This template was compiled using puglite
+  .features
+    h2 Features:
+    ul
+      li Clean whitespace-sensitive syntax
+      li Compiled at build time
+      li Works with Angular 21
+      li Uses local puglite library

@@ -12,12 +12,12 @@
 
 var fs = require('fs');
 var path = require('path');
-var lex = require('pug-lexer');
-var stripComments = require('pug-strip-comments');
-var parse = require('pug-parser');
-var generateCode = require('pug-code-gen');
-var runtime = require('pug-runtime');
-var runtimeWrap = require('pug-runtime/wrap');
+var lex = require('./lexer');
+var stripComments = require('./strip-comments');
+var parse = require('./parser');
+var generateCode = require('./code-gen');
+var runtime = require('./runtime');
+var runtimeWrap = require('./runtime-wrap');
 
 /**
  * Name for detection

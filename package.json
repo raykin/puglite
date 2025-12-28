@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "devDependencies": {
+    "@angular/compiler-cli": "^20.0.0",
     "jest": "^29.7.0",
     "prettier": "^2.8.8",
     "typescript": "^5.9.3"
@@ -17,7 +18,7 @@
   "scripts": {
     "prettier:check": "prettier --ignore-path .gitignore --list-different './**/*.js'",
     "format": "prettier --ignore-path .gitignore --write './**/*.js'",
-    "build": "node scripts/prebuild && npm run build --workspace=pug-runtime --if-present && tsc --build scripts",
+    "build": "node scripts/prebuild && tsc --build scripts",
     "pretest": "npm run build",
     "test": "jest",
     "coverage": "jest --coverage",
@@ -25,6 +26,9 @@
   },
   "jest": {
     "testEnvironment": "node",
+    "testMatch": [
+      "**/packages/**/*.test.js"
+    ],
     "snapshotSerializers": [
       "./scripts/filename-serializer.js",
       "./scripts/prettier-javascript-serializer.js",

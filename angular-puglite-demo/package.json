@@ -1,0 +1,53 @@
+{
+  "name": "angular-puglite-demo",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "build:dev": "ng build --configuration development",
+    "watch": "ng build --watch --configuration development",
+    "preview": "http-server dist/angular-puglite-demo -p 5200 -o",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "packageManager": "npm@11.6.2",
+  "dependencies": {
+    "@angular/common": "^20.0.0",
+    "@angular/compiler": "^20.0.0",
+    "@angular/core": "^20.0.0",
+    "@angular/forms": "^20.0.0",
+    "@angular/platform-browser": "^20.0.0",
+    "@angular/router": "^20.0.0",
+    "puglite": "file:../packages/pug",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "^0.16.0"
+  },
+  "devDependencies": {
+    "@angular-builders/custom-webpack": "^20.0.0",
+    "@angular/build": "^20.0.0",
+    "@angular/cli": "^20.0.0",
+    "@angular/compiler-cli": "^20.0.0",
+    "@angular/platform-browser-dynamic": "^21.0.6",
+    "@vitest/ui": "^4.0.16",
+    "http-server": "^14.1.1",
+    "jsdom": "^27.1.0",
+    "typescript": "~5.8.0",
+    "vitest": "^4.0.8"
+  }
+}

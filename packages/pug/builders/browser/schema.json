@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "Puglite Browser Builder",
+  "description": "Build browser application with Puglite template support (extends @angular-builders/custom-webpack:browser)",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": true
+}

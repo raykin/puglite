@@ -1,5 +1,5 @@
 {
-  "name": "pug",
+  "name": "puglite",
   "description": "A clean, whitespace-sensitive template language for writing HTML",
   "keywords": [
     "html",
@@ -25,12 +25,21 @@
     "url": "https://github.com/pugjs/pug/tree/master/packages/pug"
   },
   "main": "lib",
+  "builders": "builders.json",
+  "exports": {
+    ".": "./lib/index.js",
+    "./angular-webpack": "../angular-webpack/index.js",
+    "./package.json": "./package.json"
+  },
   "dependencies": {
-    "pug-code-gen": "^2.0.2",
-    "pug-lexer": "^4.1.0",
-    "pug-parser": "^5.0.1",
-    "pug-runtime": "^2.0.5",
-    "pug-strip-comments": "^1.0.4"
+    "character-parser": "^4.0.0",
+    "constantinople": "^4.0.1",
+    "doctypes": "^1.1.0",
+    "is-expression": "^4.0.0",
+    "js-stringify": "^1.0.2",
+    "token-stream": "^1.0.0",
+    "void-elements": "^3.1.0",
+    "with": "^7.0.2"
   },
   "devDependencies": {
     "mkdirp": "^0.5.1",
@@ -38,8 +47,21 @@
   },
   "files": [
     "lib/index.js",
-    "register.js"
+    "register.js",
+    "../angular-webpack/",
+    "builders.json",
+    "builders/"
   ],
+  "peerDependencies": {
+    "@angular-devkit/architect": ">=0.1800.0",
+    "@angular-devkit/build-angular": ">=18.0.0",
+    "@angular-builders/custom-webpack": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@angular-builders/custom-webpack": {
+      "optional": true
+    }
+  },
   "browser": {
     "fs": false
   },
