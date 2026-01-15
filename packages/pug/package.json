@@ -28,7 +28,7 @@
   "builders": "builders.json",
   "exports": {
     ".": "./lib/index.js",
-    "./angular-webpack": "../angular-webpack/index.js",
+    "./angular-webpack": "./angular-webpack/index.js",
     "./package.json": "./package.json"
   },
   "dependencies": {
@@ -48,7 +48,7 @@
   "files": [
     "lib/index.js",
     "register.js",
-    "../angular-webpack/",
+    "angular-webpack/",
     "builders.json",
     "builders/"
   ],

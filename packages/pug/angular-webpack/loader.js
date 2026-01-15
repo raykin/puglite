@@ -8,11 +8,11 @@ module.exports = function pugliteLoader(source) {
 
   try {
     // Import puglite internal modules
-    const lex = require('../pug/lib/lexer');
-    const parse = require('../pug/lib/parser');
-    const generateCode = require('../pug/lib/code-gen');
-    const stripComments = require('../pug/lib/strip-comments');
-    const runtimeWrap = require('../pug/lib/runtime-wrap');
+    const lex = require('../lib/lexer');
+    const parse = require('../lib/parser');
+    const generateCode = require('../lib/code-gen');
+    const stripComments = require('../lib/strip-comments');
+    const runtimeWrap = require('../lib/runtime-wrap');
 
     // Compile: lex → parse → generate → wrap → execute
     const tokens = lex(source, { filename });
