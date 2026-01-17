@@ -1,0 +1,138 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "Puglite Browser Builder",
+  "description": "Build browser application with Puglite template support",
+  "type": "object",
+  "properties": {
+    "outputPath": {
+      "type": "string",
+      "description": "The full path for the new output directory."
+    },
+    "index": {
+      "description": "Configures the generation of the application's HTML index.",
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "properties": {
+            "input": { "type": "string" },
+            "output": { "type": "string", "default": "index.html" }
+          },
+          "required": ["input"]
+        }
+      ]
+    },
+    "main": {
+      "type": "string",
+      "description": "The full path for the main entry point to the app."
+    },
+    "tsConfig": {
+      "type": "string",
+      "description": "The full path for the TypeScript configuration file."
+    },
+    "assets": {
+      "type": "array",
+      "description": "List of static application assets.",
+      "default": [],
+      "items": {
+        "oneOf": [
+          { "type": "string" },
+          {
+            "type": "object",
+            "properties": {
+              "glob": { "type": "string" },
+              "input": { "type": "string" },
+              "output": { "type": "string" },
+              "ignore": { "type": "array", "items": { "type": "string" } }
+            },
+            "required": ["glob", "input"]
+          }
+        ]
+      }
+    },
+    "styles": {
+      "type": "array",
+      "description": "Global styles to be included in the build.",
+      "default": [],
+      "items": {
+        "oneOf": [
+          { "type": "string" },
+          {
+            "type": "object",
+            "properties": {
+              "input": { "type": "string" },
+              "bundleName": { "type": "string" },
+              "inject": { "type": "boolean", "default": true }
+            },
+            "required": ["input"]
+          }
+        ]
+      }
+    },
+    "scripts": {
+      "type": "array",
+      "description": "Global scripts to be included in the build.",
+      "default": []
+    },
+    "polyfills": {
+      "description": "Polyfills to be included in the build.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "inlineStyleLanguage": {
+      "type": "string",
+      "description": "The stylesheet language to use for inline styles.",
+      "enum": ["css", "less", "sass", "scss"],
+      "default": "css"
+    },
+    "optimization": {
+      "description": "Enables optimization of the build output.",
+      "oneOf": [{ "type": "boolean" }, { "type": "object" }],
+      "default": true
+    },
+    "sourceMap": {
+      "description": "Output source maps for scripts and styles.",
+      "oneOf": [{ "type": "boolean" }, { "type": "object" }],
+      "default": false
+    },
+    "outputHashing": {
+      "type": "string",
+      "description": "Define the output filename cache-busting hashing mode.",
+      "enum": ["none", "all", "media", "bundles"],
+      "default": "none"
+    },
+    "extractLicenses": {
+      "type": "boolean",
+      "description": "Extract all licenses in a separate file.",
+      "default": true
+    },
+    "budgets": {
+      "type": "array",
+      "description": "Budget thresholds to ensure parts of your application stay within boundaries.",
+      "default": []
+    },
+    "aot": {
+      "type": "boolean",
+      "description": "Build using Ahead of Time compilation.",
+      "default": true
+    },
+    "progress": {
+      "type": "boolean",
+      "description": "Log progress to the console while building.",
+      "default": true
+    },
+    "watch": {
+      "type": "boolean",
+      "description": "Run build when files change.",
+      "default": false
+    },
+    "poll": {
+      "type": "number",
+      "description": "Enable and define the file watching poll time period in milliseconds."
+    }
+  },
+  "additionalProperties": true,
+  "required": ["outputPath", "index", "main", "tsConfig"]
+}

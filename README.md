@@ -5,14 +5,12 @@ A lightweight, streamlined version of the Pug template engine.
 ## What is Puglite?
 
 Puglite is a refactored version of [Pug](https://github.com/pugjs/pug) with simplified features:
-- ✅ Clean whitespace-sensitive syntax  
+- ✅ Clean whitespace-sensitive syntax
 - ✅ Tags, classes, IDs, attributes
 - ✅ Compile-time transformation
 - ❌ No logic flow (if/else, loops)
 - ❌ No mixins
 - ❌ No interpolation
-
-**Perfect for:** Declarative templates where logic belongs in application code.
 
 ## Credits & Thanks
 
@@ -25,29 +23,44 @@ Huge thanks to:
 
 Without their amazing work, Puglite wouldn't exist. ❤️
 
-## Quick Start with Angular 20+
+## Quick Start with Angular 18+
 
 ### 1. Install
 ```bash
-npm install --save-dev @angular-builders/custom-webpack
+npm install -D puglite @angular-builders/custom-webpack
 ```
 
-### 2. Create `custom-webpack.config.js`
-```javascript
-module.exports = require('puglite/packages/angular-webpack')();
-```
+### 2. Update `angular.json`
 
-### 3. Update `angular.json`
+Use `puglite:browser` and `puglite:dev-server` builders:
+
 ```json
 {
-  "builder": "@angular-builders/custom-webpack:browser",
-  "options": {
-    "customWebpackConfig": { "path": "./custom-webpack.config.js" }
+  "architect": {
+    "build": {
+      "builder": "puglite:browser",
+      "options": {
+        "outputPath": "dist/my-app",
+        "index": "src/index.html",
+        "main": "src/main.ts",
+        "tsConfig": "tsconfig.app.json"
+      }
+    },
+    "serve": {
+      "builder": "puglite:dev-server",
+      "configurations": {
+        "development": {
+          "buildTarget": "my-app:build:development"
+        }
+      }
+    }
   }
 }
 ```
 
-### 4. Use `.pug` Templates
+**Important:** Puglite requires the **old Angular schema format** with `outputPath`, `index`, and `main`. The new Angular 17+ schema using `browser` instead of `main` is not supported because puglite uses webpack-based builds.
+
+### 3. Use `.pug` Templates
 ```typescript
 @Component({
   selector: 'app-root',
@@ -67,40 +80,13 @@ export class AppComponent {
 
 ## Supported Syntax
 
-```pug
-// Tags
-div
-span
-p
-
-// Classes and IDs
-.my-class
-#my-id
-div.class1.class2#id
-
-// Attributes
-a(href="/home" target="_blank")
-input(type="text" value="Hello")
-
-// Text
-p This is text
-div.
-  Multiple lines
-  of text
-
-// Nesting
-.container
-  .header
-    h1 Title
-  .content
-    p Content
-```
+See EXAMPLES.md
 
 ## What's Different from Pug?
 
 Puglite **removes** these Pug features:
 - ❌ Logic: `if`, `else`, `unless`, `case`, `when`
-- ❌ Loops: `each`, `while`  
+- ❌ Loops: `each`, `while`
 - ❌ Mixins: `mixin`, `+mixin()`
 - ❌ Interpolation: `#{}`, `!{}`
 
@@ -116,9 +102,3 @@ MIT
 
 - **Pug**: [pugjs.org](https://pugjs.org) | [GitHub](https://github.com/pugjs/pug)
 - **Custom Webpack**: [GitHub](https://github.com/just-jeb/angular-builders)
-<!-- VERSION_TABLE -->
-Package Name | Version
--------------|--------
-@puglite/angular-webpack | [![NPM version](https://img.shields.io/npm/v/@puglite/angular-webpack?style=for-the-badge)](https://www.npmjs.com/package/@puglite/angular-webpack)
-puglite | [![NPM version](https://img.shields.io/npm/v/puglite?style=for-the-badge)](https://www.npmjs.com/package/puglite)
-<!-- VERSION_TABLE -->
