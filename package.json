@@ -1,6 +1,6 @@
 {
   "name": "puglite",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A clean, whitespace-sensitive template language for writing HTML",
   "keywords": [
     "html",
@@ -34,7 +34,9 @@
   "scripts": {
     "test": "jest",
     "coverage": "jest --coverage",
-    "watch": "jest --watch"
+    "watch": "jest --watch",
+    "bench": "node bench/run.js",
+    "bench:gen": "node bench/gen-fixtures.js"
   },
   "jest": {
     "testEnvironment": "node",
@@ -53,8 +55,9 @@
     "with": "^7.0.2"
   },
   "devDependencies": {
-"jest": "^30.2.0",
-    "uglify-js": "^3.19.3"
+    "@webdiscus/pug-loader": "^2.11.0",
+    "jest": "^30.2.0",
+    "pug": "^3.0.4"
   },
   "peerDependencies": {
     "@angular-builders/custom-webpack": ">=18.0.0",

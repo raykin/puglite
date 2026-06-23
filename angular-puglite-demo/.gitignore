@@ -38,6 +38,13 @@ testem.log
 /typings
 __screenshots__/
 
+# Generated benchmark corpus (regenerate with: npm run gen:components)
+/src/app/generated
+/src/app/generated-html
+
+# Scratch / GNU-time stderr logs
+*.err
+
 # System files
 .DS_Store
 Thumbs.db

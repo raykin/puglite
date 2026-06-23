@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { Gallery } from './generated/gallery';
 
 @Component({
   selector: 'app-root',
-  imports: [],
+  imports: [Gallery],
   templateUrl: './hello.pug',
   styles: [`
     .hello-container {

@@ -108,6 +108,15 @@
       "description": "Extract all licenses in a separate file.",
       "default": true
     },
+    "serviceWorker": {
+      "type": "boolean",
+      "description": "Generates a service worker config for production builds.",
+      "default": false
+    },
+    "ngswConfigPath": {
+      "type": "string",
+      "description": "Path to ngsw-config.json."
+    },
     "budgets": {
       "type": "array",
       "description": "Budget thresholds to ensure parts of your application stay within boundaries.",

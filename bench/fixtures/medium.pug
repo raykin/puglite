@@ -1,0 +1,41 @@
+.page
+  header.toolbar
+    button.menu(type="button" aria-label="Open menu") Menu
+    h1.title {{ pageTitle }}
+    nav.actions
+      a.btn(href="/profile") Profile
+      a.btn(href="/settings") Settings
+      a.btn.danger(href="/logout") Log out
+  main.content
+    section.cards
+      article.card(data-id="1" data-kind="summary")
+        .card-head
+          h2.card-title First card
+          span.badge New
+        p.card-body Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        footer.card-foot
+          button.btn.primary(type="button") Open
+          button.btn.ghost(type="button") Dismiss
+      article.card(data-id="2" data-kind="summary")
+        .card-head
+          h2.card-title Second card
+          span.badge Hot
+        p.card-body Sed do eiusmod tempor incididunt ut labore et dolore magna.
+        footer.card-foot
+          button.btn.primary(type="button") Open
+          button.btn.ghost(type="button") Dismiss
+      article.card(data-id="3" data-kind="summary")
+        .card-head
+          h2.card-title Third card
+          span.badge Sale
+        p.card-body Ut enim ad minim veniam, quis nostrud exercitation ullamco.
+        footer.card-foot
+          button.btn.primary(type="button") Open
+          button.btn.ghost(type="button") Dismiss
+  footer.footer
+    small © {{ year }} Acme Corp
+    ul.links
+      li
+        a(href="/terms") Terms
+      li
+        a(href="/privacy") Privacy

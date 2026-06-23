@@ -22,3 +22,8 @@ package-lock.json
 scripts/tsconfig.json
 packages/pug-error/lib
 .claude
+
+# GitNexus code-intelligence index + generated agent docs
+.gitnexus
+CLAUDE.md
+AGENTS.md

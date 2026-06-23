@@ -97,6 +97,108 @@
           },
           "defaultConfiguration": "development"
         },
+        "build-webdiscus": {
+          "builder": "@angular-builders/custom-webpack:browser",
+          "options": {
+            "customWebpackConfig": {
+              "path": "./webpack.config.js"
+            },
+            "outputPath": "dist/angular-puglite-demo-webdiscus",
+            "index": "src/index.html",
+            "main": "src/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "aot": true,
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": [
+              "src/styles.css"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "build-esbuild": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": "dist/angular-puglite-demo-esbuild",
+            "index": "src/index.html",
+            "browser": "src/main-esbuild.ts",
+            "tsConfig": "tsconfig.esbuild.json",
+            "aot": true,
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": [
+              "src/styles.css"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve-webdiscus": {
+          "builder": "@angular-builders/custom-webpack:dev-server",
+          "options": {
+            "buildTarget": "angular-puglite-demo:build-webdiscus:development"
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "angular-puglite-demo:build-webdiscus:production"
+            },
+            "development": {
+              "buildTarget": "angular-puglite-demo:build-webdiscus:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
         "test": {
           "builder": "puglite:vitest",
           "options": {}

@@ -1,0 +1,19 @@
+/* tsconfig for the stock esbuild build target (build-esbuild). It compiles the
+   HTML-only entry (main-esbuild.ts -> AppEsbuild -> generated-html) and EXCLUDES
+   the pug app tree, since the stock @angular/build:application builder cannot
+   resolve `.pug` templateUrls during AOT type-checking. */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/esbuild",
+    "types": []
+  },
+  "files": [
+    "src/main-esbuild.ts"
+  ],
+  "include": [
+    "src/app/app-esbuild.ts",
+    "src/app/app.config.ts",
+    "src/app/generated-html/**/*.ts"
+  ]
+}

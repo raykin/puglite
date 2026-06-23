@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "gen:components": "node tools/gen-components.js",
     "start": "ng serve",
     "build": "ng build",
     "build:dev": "ng build --configuration development",
@@ -48,6 +49,7 @@
     "@angular/platform-browser-dynamic": "^21.0.6",
     "@types/jasmine": "^6.0.0",
     "@vitest/ui": "^4.0.16",
+    "@webdiscus/pug-loader": "^2.11.0",
     "http-server": "^14.1.1",
     "jasmine-core": "^6.0.1",
     "jsdom": "^27.1.0",
@@ -56,6 +58,7 @@
     "karma-coverage": "^2.2.1",
     "karma-jasmine": "^5.1.0",
     "karma-jasmine-html-reporter": "^2.1.0",
+    "pug-plugin-ng": "^0.0.3",
     "typescript": "~5.9.3",
     "vitest": "^4.0.8"
   }
