@@ -1,0 +1,130 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Puglite Comprehensive Feature Demo
+
+  body
+    //- Single line comment
+    header#main-header.header.sticky
+      h1 Puglite Feature Showcase
+
+    //
+      Multi-line comment block
+      This demonstrates block comments
+
+    main.container
+
+      // 1. Basic Elements & Nesting
+      section#basic-elements
+        h2 Basic Elements
+        p This is a paragraph
+        p.
+          This is a text block that can span
+          multiple lines and preserves
+          whitespace and line breaks.
+
+      // 2. Classes (multiple syntaxes)
+      section#classes
+        h2 Classes
+        div.class-one
+        div.class-one.class-two.class-three
+        div(class="with-parentheses")
+        div(class=['array', 'of', 'classes'])
+        div(class={active: true, disabled: false, selected: true})
+
+      // 3. IDs and Attributes
+      section#attributes
+        h2 Attributes
+        input#username(type="text" name="username" placeholder="Enter username" required)
+        input#password(type="password" name="password")
+        button#submit-btn.btn.btn-primary(type="submit" disabled) Submit
+        a(href="https://example.com" target="_blank" rel="noopener") Link
+
+      // 4. Self-closing tags
+      section#self-closing
+        h2 Self-closing Tags
+        img(src="/logo.png" alt="Logo")
+        br
+        hr
+        input(type="text")
+
+      // 5. Text content (inline and piped)
+      section#text-content
+        h2 Text Content
+        p Inline text directly after element
+        p
+          | Piped text on separate line
+          | Multiple piped lines
+          | Can be combined
+        span Text
+        strong with inline
+        em elements
+
+      // 6. Block expansion
+      section#block-expansion
+        h2 Block Expansion
+        ul
+          li: a(href="/home") Home
+          li: a(href="/about") About
+          li: a(href="/contact") Contact
+
+      // 7. Nested structures
+      section#nested
+        h2 Nested Structures
+        nav.navigation
+          ul.nav-list
+            li.nav-item
+              a.nav-link(href="#") Item 1
+            li.nav-item
+              a.nav-link(href="#") Item 2
+            li.nav-item.active
+              a.nav-link(href="#") Item 3
+
+      // 8. Template tags (with raw content)
+      section#templates
+        h2 Template Tags
+        script(type="text/x-template").
+          <article>
+            <h2>{{title}}</h2>
+            <p>{{description}}</p>
+          </article>
+
+      // 9. Blank lines and whitespace
+      section#whitespace
+        h2 Whitespace Handling
+
+
+        p Multiple blank lines above are preserved in source
+
+
+
+      // 10. Special characters in text
+      section#special-chars
+        h2 Special Characters
+        p "Double quotes"
+        p 'Single quotes'
+        p Special chars: &lt; &gt; &amp; &copy;
+
+      // 11. Mixed content
+      section#mixed
+        h2 Mixed Content
+        .card
+          .card-header
+            h3.card-title Card Title
+          .card-body
+            p.card-text This is card content
+            button.btn Read More
+          .card-footer
+            small Last updated 3 mins ago
+
+      // 12. Empty elements
+      section#empty
+        h2 Empty Elements
+        div
+        span
+        p
+
+    footer.footer
+      p &copy; 2025 Puglite Demo. All rights reserved.
