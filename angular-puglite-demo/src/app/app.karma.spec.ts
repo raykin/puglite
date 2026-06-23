@@ -1,11 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component } from '@angular/core';
+import { Gallery } from './generated/gallery';
 
 // Create a test version of the component with templateUrl
-// (styles removed since we're only testing template compilation)
+// (styles removed since we're only testing template compilation).
+// Imports Gallery because hello.pug renders <app-gallery>, mirroring App.
 @Component({
   selector: 'app-root',
   standalone: true,
+  imports: [Gallery],
   templateUrl: './hello.pug',
 })
 class TestApp {}

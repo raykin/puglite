@@ -36,6 +36,11 @@ if [ ! -x "$TIME_BIN" ]; then
   exit 1
 fi
 
+# Regenerate the benchmark corpus (gitignored) so this runs from a fresh clone.
+# We call ng directly below, bypassing the package.json pre* hooks.
+echo ">> generating component corpus ..." >&2
+node tools/gen-components.js >/dev/null
+
 run() {
   local name="$1" target="$2"
   local log="$LOGDIR/$name.log"

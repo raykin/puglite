@@ -4,13 +4,19 @@
   "scripts": {
     "ng": "ng",
     "gen:components": "node tools/gen-components.js",
+    "prestart": "npm run gen:components",
     "start": "ng serve",
+    "prebuild": "npm run gen:components",
     "build": "ng build",
+    "prebuild:dev": "npm run gen:components",
     "build:dev": "ng build --configuration development",
+    "prewatch": "npm run gen:components",
     "watch": "ng build --watch --configuration development",
     "preview": "http-server dist/angular-puglite-demo -p 5200 -o",
     "test": "npm run test:karma",
+    "pretest:vitest": "npm run gen:components",
     "test:vitest": "vitest run",
+    "pretest:karma": "npm run gen:components",
     "test:karma": "ng run angular-puglite-demo:test-karma"
   },
   "prettier": {
