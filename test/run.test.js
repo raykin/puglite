@@ -4,13 +4,12 @@
 
 const fs = require('fs');
 const assert = require('assert');
-const mkdirp = require('mkdirp').sync;
 const runUtils = require('./run-utils');
 const pug = require('../');
 
 var cases = runUtils.findCases(__dirname + '/cases');
 
-mkdirp(__dirname + '/output');
+fs.mkdirSync(__dirname + '/output', { recursive: true });
 
 describe('test cases', function() {
   cases.forEach((test, i) => {

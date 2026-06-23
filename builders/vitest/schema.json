@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "Puglite Vitest Builder",
+  "description": "Vitest test runner with Puglite template support",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": true
+}

@@ -2,7 +2,6 @@ var fs = require('fs');
 var assert = require('assert');
 var pug = require('../');
 var uglify = require('uglify-js');
-var mkdirp = require('mkdirp').sync;
 
 var filters = {
   custom: function(str, options) {

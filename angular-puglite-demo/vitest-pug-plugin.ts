@@ -12,16 +12,16 @@ export function vitestPugPlugin(): Plugin {
     enforce: 'pre',
     transform(code, id) {
       if (id.endsWith('.pug')) {
-        // Use the puglite compiler packages (same path as webpack loader)
-        const packagesPath = join(__dirname, '../packages');
+        // Use the puglite compiler (same path as webpack loader)
+        const libPath = join(__dirname, '../lib');
 
         try {
           // Import puglite modules (same as the webpack loader does)
-          const lex = require(`${packagesPath}/pug/lib/lexer`);
-          const parse = require(`${packagesPath}/pug/lib/parser`);
-          const generateCode = require(`${packagesPath}/pug/lib/code-gen`);
-          const stripComments = require(`${packagesPath}/pug/lib/strip-comments`);
-          const runtimeWrap = require(`${packagesPath}/pug/lib/runtime-wrap`);
+          const lex = require(`${libPath}/lexer`);
+          const parse = require(`${libPath}/parser`);
+          const generateCode = require(`${libPath}/code-gen`);
+          const stripComments = require(`${libPath}/strip-comments`);
+          const runtimeWrap = require(`${libPath}/runtime-wrap`);
 
           // Read the .pug file content
           const pugSource = readFileSync(id, 'utf-8');

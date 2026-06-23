@@ -1008,5 +1008,68 @@ describe('pug', function() {
         pug.render('button(*ngIf="show", (click)="doSomething()", [disabled]="!enabled")')
       );
     });
+
+    it('should support #templateRef with value', function() {
+      assert.equal(
+        '<form #profileForm="ngForm"></form>',
+        pug.render('form(#profileForm="ngForm")')
+      );
+    });
+
+    it('should support #templateRef without value', function() {
+      assert.equal(
+        '<input #searchbar type="text"/>',
+        pug.render('input(#searchbar, type="text")')
+      );
+    });
+
+    it('should support custom element with property bindings', function() {
+      assert.equal(
+        '<hex-map [cols]="cols" [rows]="rows"></hex-map>',
+        pug.render("hex-map([cols]='cols' [rows]='rows')")
+      );
+    });
+
+    it('should support custom element with multiple property bindings', function() {
+      assert.equal(
+        '<hex-map [cols]="cols" [rows]="rows" [minHexSize]="minHexSize" [backgroundColor]="backgroundColor" tileGenerator="blank"></hex-map>',
+        pug.render("hex-map([cols]='cols' [rows]='rows' [minHexSize]='minHexSize' [backgroundColor]='backgroundColor' tileGenerator='blank')")
+      );
+    });
+
+    it('should support (click) with function call before other attr', function() {
+      assert.equal(
+        '<button (click)="doStuff()" type="button"></button>',
+        pug.render('button((click)="doStuff()" type="button")')
+      );
+    });
+
+    it('should support (click) with function call after other attr', function() {
+      assert.equal(
+        '<button type="button" (click)="doStuff()"></button>',
+        pug.render('button(type="button" (click)="doStuff()")')
+      );
+    });
+
+    it('should support *ngIf with function call after other attr', function() {
+      assert.equal(
+        '<button type="button" *ngIf="somethingIsCorrect()"></button>',
+        pug.render('button(type="button" *ngIf="somethingIsCorrect()")')
+      );
+    });
+
+    it('should support *ngIf with as syntax after other attr', function() {
+      assert.equal(
+        '<button type="button" *ngIf="somethingIsCorrect() as check"></button>',
+        pug.render('button(type="button" *ngIf="somethingIsCorrect() as check")')
+      );
+    });
+
+    it('should support # as literal text before interpolation', function() {
+      assert.equal(
+        '<span class="status-value">#{{state.current_turn.turn_number}}</span>',
+        pug.render('span.status-value #{{state.current_turn.turn_number}}')
+      );
+    });
   });
 });

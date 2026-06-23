@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/@angular-devkit/architect/src/builders-schema.json",
+  "builders": {
+    "browser": {
+      "implementation": "./builders/browser",
+      "schema": "./builders/browser/schema.json",
+      "description": "Build browser application with Puglite template support"
+    },
+    "dev-server": {
+      "implementation": "./builders/dev-server",
+      "schema": "./builders/dev-server/schema.json",
+      "description": "Development server with Puglite template support"
+    },
+    "karma": {
+      "implementation": "./builders/karma",
+      "schema": "./builders/karma/schema.json",
+      "description": "Karma test runner with Puglite template support"
+    },
+    "vitest": {
+      "implementation": "./builders/vitest",
+      "schema": "./builders/vitest/schema.json",
+      "description": "Vitest test runner with Puglite template support"
+    }
+  }
+}

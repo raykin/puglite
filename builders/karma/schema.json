@@ -1,0 +1,260 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "Puglite Karma Test Builder",
+  "description": "Karma test runner with Puglite template support",
+  "type": "object",
+  "properties": {
+    "main": {
+      "type": "string",
+      "description": "The name of the main entry-point file."
+    },
+    "tsConfig": {
+      "type": "string",
+      "description": "The name of the TypeScript configuration file."
+    },
+    "karmaConfig": {
+      "type": "string",
+      "description": "The name of the Karma configuration file."
+    },
+    "polyfills": {
+      "description": "A list of polyfills to include in the build.",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "assets": {
+      "type": "array",
+      "description": "List of static application assets.",
+      "default": [],
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "glob": {
+                "type": "string",
+                "description": "The pattern to match."
+              },
+              "input": {
+                "type": "string",
+                "description": "The input directory path in which to apply 'glob'."
+              },
+              "output": {
+                "type": "string",
+                "description": "Absolute path within the output."
+              },
+              "ignore": {
+                "description": "An array of globs to ignore.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "required": ["glob", "input", "output"]
+          }
+        ]
+      }
+    },
+    "styles": {
+      "description": "Global styles to be included in the build.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "input": {
+                "type": "string",
+                "description": "The file to include."
+              },
+              "bundleName": {
+                "type": "string",
+                "pattern": "^[\\w\\-.]*$",
+                "description": "The bundle name for this extra entry point."
+              },
+              "inject": {
+                "type": "boolean",
+                "description": "If the bundle will be referenced in the HTML file.",
+                "default": true
+              }
+            },
+            "additionalProperties": false,
+            "required": ["input"]
+          }
+        ]
+      }
+    },
+    "scripts": {
+      "description": "Global scripts to be included in the build.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "input": {
+                "type": "string",
+                "description": "The file to include."
+              },
+              "bundleName": {
+                "type": "string",
+                "pattern": "^[\\w\\-.]*$",
+                "description": "The bundle name for this extra entry point."
+              },
+              "inject": {
+                "type": "boolean",
+                "description": "If the bundle will be referenced in the HTML file.",
+                "default": true
+              }
+            },
+            "additionalProperties": false,
+            "required": ["input"]
+          }
+        ]
+      }
+    },
+    "sourceMap": {
+      "description": "Output source maps for scripts and styles.",
+      "default": true,
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scripts": {
+              "type": "boolean",
+              "description": "Output source maps for all scripts.",
+              "default": true
+            },
+            "styles": {
+              "type": "boolean",
+              "description": "Output source maps for all styles.",
+              "default": true
+            },
+            "vendor": {
+              "type": "boolean",
+              "description": "Output source maps for vendor libraries.",
+              "default": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "progress": {
+      "type": "boolean",
+      "description": "Log progress to the console while building."
+    },
+    "watch": {
+      "type": "boolean",
+      "description": "Run build when files change."
+    },
+    "poll": {
+      "type": "number",
+      "description": "Enable and define the file watching poll time period in milliseconds."
+    },
+    "preserveSymlinks": {
+      "type": "boolean",
+      "description": "Do not use the real path when resolving modules."
+    },
+    "browsers": {
+      "type": "string",
+      "description": "Override which browsers tests are run against."
+    },
+    "codeCoverage": {
+      "type": "boolean",
+      "description": "Output a code coverage report.",
+      "default": false
+    },
+    "codeCoverageExclude": {
+      "type": "array",
+      "description": "Globs to exclude from code coverage.",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "fileReplacements": {
+      "description": "Replace compilation source files with other compilation source files in the build.",
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "src": {
+                "type": "string",
+                "pattern": "\\.(([cm]?j|t)sx?|json)$"
+              },
+              "replaceWith": {
+                "type": "string",
+                "pattern": "\\.(([cm]?j|t)sx?|json)$"
+              }
+            },
+            "additionalProperties": false,
+            "required": ["src", "replaceWith"]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "replace": {
+                "type": "string",
+                "pattern": "\\.(([cm]?j|t)sx?|json)$"
+              },
+              "with": {
+                "type": "string",
+                "pattern": "\\.(([cm]?j|t)sx?|json)$"
+              }
+            },
+            "additionalProperties": false,
+            "required": ["replace", "with"]
+          }
+        ]
+      },
+      "default": []
+    },
+    "include": {
+      "type": "array",
+      "description": "Globs of files to include, relative to workspace or project root.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "exclude": {
+      "type": "array",
+      "description": "Globs of files to exclude, relative to the workspace or project root.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "webWorkerTsConfig": {
+      "type": "string",
+      "description": "TypeScript configuration for Web Worker modules."
+    }
+  },
+  "additionalProperties": false,
+  "required": ["karmaConfig"]
+}

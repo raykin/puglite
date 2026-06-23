@@ -9,6 +9,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test-setup.ts'],
     include: ['src/**/*.spec.ts'],
+    exclude: ['src/**/*.karma.spec.ts', 'node_modules/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
