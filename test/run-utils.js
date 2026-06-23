@@ -1,7 +1,6 @@
 var fs = require('fs');
 var assert = require('assert');
 var pug = require('../');
-var uglify = require('uglify-js');
 
 var filters = {
   custom: function(str, options) {
@@ -63,53 +62,32 @@ function testSingle(it, suffix, test) {
       )
       .trim()
       .replace(/\r/g, '');
-    var clientCode = uglify.minify(
+    var clientCode = pug.compileClient(str, {
+      filename: path,
+      pretty: true,
+      compileDebug: false,
+      basedir: __dirname + '/cases' + suffix,
+      filters: filters,
+      filterAliases: {markdown: 'markdown-it'},
+    });
+    var clientCodeDebug = pug.compileClient(str, {
+      filename: path,
+      pretty: true,
+      compileDebug: true,
+      basedir: __dirname + '/cases' + suffix,
+      filters: filters,
+      filterAliases: {markdown: 'markdown-it'},
+    });
+    writeFileSync(
+      __dirname + '/output' + suffix + '/' + test + '.js',
       pug.compileClient(str, {
         filename: path,
-        pretty: true,
+        pretty: false,
         compileDebug: false,
         basedir: __dirname + '/cases' + suffix,
         filters: filters,
         filterAliases: {markdown: 'markdown-it'},
-      }),
-      {
-        output: {beautify: true},
-        mangle: false,
-        compress: false,
-      }
-    ).code;
-    var clientCodeDebug = uglify.minify(
-      pug.compileClient(str, {
-        filename: path,
-        pretty: true,
-        compileDebug: true,
-        basedir: __dirname + '/cases' + suffix,
-        filters: filters,
-        filterAliases: {markdown: 'markdown-it'},
-      }),
-      {
-        output: {beautify: true},
-        mangle: false,
-        compress: false,
-      }
-    ).code;
-    writeFileSync(
-      __dirname + '/output' + suffix + '/' + test + '.js',
-      uglify.minify(
-        pug.compileClient(str, {
-          filename: path,
-          pretty: false,
-          compileDebug: false,
-          basedir: __dirname + '/cases' + suffix,
-          filters: filters,
-          filterAliases: {markdown: 'markdown-it'},
-        }),
-        {
-          output: {beautify: true},
-          mangle: false,
-          compress: false,
-        }
-      ).code
+      })
     );
     if (/filter/.test(test)) {
       actual = actual.replace(/\n| /g, '');
