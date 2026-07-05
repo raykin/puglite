@@ -1,10 +1,10 @@
 # Puglite
 
-A lightweight, streamlined version of the Pug template engine.
+A minimal, whitespace-sensitive template engine for compile-time markup transformation.
 
 ## What is Puglite?
 
-Puglite is a refactored version of [Pug](https://github.com/pugjs/pug) with simplified features:
+Puglite turns terse, indentation-based templates into HTML — nothing more. It deliberately has no runtime logic:
 - ✅ Clean whitespace-sensitive syntax
 - ✅ Tags, classes, IDs, attributes
 - ✅ Compile-time transformation
@@ -12,18 +12,14 @@ Puglite is a refactored version of [Pug](https://github.com/pugjs/pug) with simp
 - ❌ No mixins
 - ❌ No interpolation
 
-## Credits & Thanks
+Logic, iteration, and data binding belong to your framework (e.g. Angular); Puglite only shapes the markup around them.
 
-**Puglite is built upon [Pug](https://pugjs.org).** All core parsing and compilation code comes from the excellent Pug project. We simply removed features to create a more focused template engine. Puglite was forked from Pug 3.x at upstream commit [`32acfe8`](https://github.com/pugjs/pug/commit/32acfe8) (#3438).
+## Supported Syntax
 
-Huge thanks to:
-- **TJ Holowaychuk** - Pug creator
-- **Forbes Lindesay** - Pug maintainer
-- **The Pug.js team and all contributors**
-
-Without their amazing work, Puglite wouldn't exist. ❤️
-
-Special thanks to **Adam Miller** for sponsoring the Claude Code usage that helped build Puglite.
+Elements, nesting, classes/IDs, attributes, doctypes, comments, text blocks,
+block expansion, self-closing tags, and namespaces. See
+[EXAMPLES.md](./EXAMPLES.md) for the full supported/not-supported reference and
+worked examples.
 
 ## Standalone Usage
 
@@ -43,33 +39,22 @@ npm install -D puglite @angular-builders/custom-webpack
 
 ### 2. Update `angular.json`
 
-Use `puglite:browser` and `puglite:dev-server` builders:
+Only the `builder` values change — keep your existing `options`. Under `projects.<your-app>.architect`, swap the `build` and `serve` builders:
 
-```json
-{
-  "architect": {
-    "build": {
-      "builder": "puglite:browser",
-      "options": {
-        "outputPath": "dist/my-app",
-        "index": "src/index.html",
-        "main": "src/main.ts",
-        "tsConfig": "tsconfig.app.json"
-      }
-    },
-    "serve": {
-      "builder": "puglite:dev-server",
-      "configurations": {
-        "development": {
-          "buildTarget": "my-app:build:development"
-        }
-      }
-    }
+```diff
+  "build": {
+-   "builder": "@angular-devkit/build-angular:browser",
++   "builder": "puglite:browser",
+    "options": { ... }
+  },
+  "serve": {
+-   "builder": "@angular-devkit/build-angular:dev-server",
++   "builder": "puglite:dev-server",
+    "options": { ... }
   }
-}
 ```
 
-**Important:** Puglite requires the **old Angular schema format** with `outputPath`, `index`, and `main`. The new Angular 17+ schema using `browser` instead of `main` is not supported because puglite uses webpack-based builds.
+**Important:** Puglite requires the **old Angular schema format** — your `build` options must use `main` (not `browser`) and `outputPath`. The newer esbuild schema is not supported because puglite builds via webpack.
 
 ### 3. Use `.pug` Templates
 ```typescript
@@ -102,10 +87,10 @@ no way to resolve a `templateUrl: './foo.component.pug'`. This means:
 
 ```typescript
 // No TestBed, no template rendering — just the constructor + methods.
-const component = new UploadImgComponent(shareService, s3uploader, platform, localFile);
+const component = new CounterComponent();
 
-component.img = photo;
-expect(component.isUploading()).toBe(true);
+component.increment();
+expect(component.count()).toBe(1);
 ```
 
 Because `new Component(...)` never reads `templateUrl`, it sidesteps the build-time
@@ -119,25 +104,6 @@ tests (Playwright/Cypress) instead.
 > assertions never run. Keep these specs synchronous (use `of(...)`/`throwError(...)`
 > for observables) so expectations actually gate the result.
 
-## Supported Syntax
-
-Elements, nesting, classes/IDs, attributes, doctypes, comments, text blocks,
-block expansion, self-closing tags, and namespaces. See
-[EXAMPLES.md](./EXAMPLES.md) for the full supported/not-supported reference and
-worked examples.
-
-## What's Different from Pug?
-
-Puglite **removes** these Pug features:
-- ❌ Logic: `if`, `else`, `unless`, `case`, `when`
-- ❌ Loops: `each`, `while`
-- ❌ Mixins: `mixin`, `+mixin()`
-- ❌ Interpolation: `#{}`, `!{}`
-
-## Why Custom Webpack?
-
-Angular 17+ uses esbuild for speed, but esbuild plugins run **after** template validation. Custom-webpack (1.5M downloads/month) uses webpack loaders that transform templates **before** Angular processes them - the only reliable way for compile-time template transformation.
-
 ## License
 
 MIT — see [LICENSE](./LICENSE).
@@ -148,5 +114,18 @@ license notice are retained in [LICENSE](./LICENSE) as required.
 
 ## Links
 
-- **Pug**: [pugjs.org](https://pugjs.org) | [GitHub](https://github.com/pugjs/pug)
-- **Custom Webpack**: [GitHub](https://github.com/just-jeb/angular-builders)
+- **Examples**: [EXAMPLES.md](./EXAMPLES.md)
+- **Custom Webpack builders**: [GitHub](https://github.com/just-jeb/angular-builders)
+
+## Credits & Thanks
+
+**Puglite is built upon [Pug](https://pugjs.org).** All core parsing and compilation code comes from the excellent Pug project. We simply removed features to create a more focused template engine. Puglite was forked from Pug 3.x at upstream commit [`32acfe8`](https://github.com/pugjs/pug/commit/32acfe8) (#3438).
+
+Huge thanks to:
+- **TJ Holowaychuk** - Pug creator
+- **Forbes Lindesay** - Pug maintainer
+- **The Pug.js team and all contributors**
+
+Without their amazing work, Puglite wouldn't exist. ❤️
+
+Special thanks to **Adam Miller** for sponsoring the Claude Code usage that helped build Puglite.

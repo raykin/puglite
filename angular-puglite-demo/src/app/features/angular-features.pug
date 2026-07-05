@@ -1,0 +1,76 @@
+div.features-root
+  h1.title {{ title }}
+  p.tooltip([title]="tooltip") hover me
+  button.counter((click)="inc()") count is {{ count }}
+  ul.list
+    li.item(*ngFor="let item of items") {{ item }}
+  p.conditional(*ngIf="show") visible
+
+  //- two-way binding [(x)]
+  input.model([(ngModel)]="name")
+  p.model-out {{ name }}
+
+  //- pipe
+  p.piped {{ name | uppercase }}
+
+  //- class binding [class.x]
+  div.toggle([class.active]="show") toggle
+
+  //- style binding [style.x]
+  div.styled([style.color]="color") styled
+
+  //- template reference variable #ref
+  input.refin(#box type="text")
+  p.refout {{ box.value }}
+
+  //- ng-container with structural directive
+  ng-container(*ngIf="show")
+    span.in-container contained
+
+  //- ng-template + ngTemplateOutlet
+  ng-container(*ngTemplateOutlet="tpl")
+  ng-template(#tpl)
+    span.in-template templated
+
+  //- ng-content projection
+  app-panel
+    span.projected projected content
+
+  //- static compile-time HTML features
+  section.static
+    //- nesting
+    ul.nest
+      li a
+      li b
+      li
+        ul
+          li c
+          li d
+    //- classes: string / array / object
+    div.cls-string.foo.bar
+    div.cls-array(class=["a", "b"])
+    div.cls-object(class={active: true, disabled: false})
+    //- id
+    div#the-id.cls-id
+    //- styles: string / object
+    div.sty-string(style="color: red")
+    div.sty-object(style={color: "red", "font-weight": "bold"})
+    //- attributes + boolean + multi-line
+    input.attrs(type="text"
+      name="who"
+      required)
+    //- block expansion
+    ul.expand
+      li: a.home(href="/home") Home
+    //- self-closing tags
+    img.img(src="/logo.png" alt="Logo")
+    br
+    hr
+    //- text: inline / piped / block
+    p.inline some random text
+    p.piped-text
+      | foo
+      | bar
+    p.block.
+      line one
+      line two

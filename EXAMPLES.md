@@ -17,17 +17,6 @@ the test specs) demonstrate each feature.
 - **Self-closing tags** - `img`, `br`, `hr`, `input`
 - **Namespaces** - `foo:bar-baz`
 
-## Not Supported
-
-- Mixins
-- Conditionals (`if`/`else`/`unless`)
-- Loops (`each`/`for`/`while`)
-- Case/when
-- Pug interpolation (`#{}`) - use Angular `{{}}` instead
-- Filters (`:markdown`)
-- Includes
-- Extends/blocks
-
 ## Use Cases
 
 **Good for:** Static HTML, Angular/React/Vue templates, email templates
@@ -84,6 +73,28 @@ div.foo.bar.baz
 //- <div id="something"></div>
 //- <div class="bar" id="foo"></div>
 //- <div class="bar" id="foo"></div>
+```
+
+Classes can also be given as an array or an object (keys with truthy values are kept):
+
+```pug
+div(class=["a", "b"])
+div(class={active: true, disabled: false})
+
+//- <div class="a b"></div>
+//- <div class="active"></div>
+```
+
+## Styles
+
+`style` accepts a string or an object:
+
+```pug
+div(style="color: red")
+div(style={color: "red", "font-weight": "bold"})
+
+//- <div style="color: red"></div>
+//- <div style="color:red;font-weight:bold;"></div>
 ```
 
 ## Block Expansion

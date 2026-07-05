@@ -33,6 +33,12 @@ describe('disabled features throw at compile', function() {
     'extends': 'extends layout',
     'include': 'include foo.pug',
     'include with filter': 'include:markdown foo.md',
+    'named block': 'block content',
+    'block append': 'block append content',
+    'block prepend': 'block prepend content',
+    'bare append': 'append content',
+    'bare prepend': 'prepend content',
+    'yield': 'yield',
   };
 
   Object.keys(disabled).forEach(function(name) {
@@ -50,9 +56,9 @@ describe('supported feature output', function() {
     'conditional comment': ['//if IE\n  p old', '<!--if IEp old-->'],
     'unbuffered comment is removed': ['//- hidden\np ok', '<p>ok</p>'],
     'buffered inline comment': ['// visible', '<!-- visible-->'],
-    'tag interpolation with attributes': [
+    'hash-bracket is literal text': [
       'p #[a(href="x") link] end',
-      '<p><a href="x">link</a> end</p>',
+      '<p>#[a(href="x") link] end</p>',
     ],
     'custom doctype': ['doctype html PUBLIC "foo"', '<!DOCTYPE html PUBLIC "foo">'],
     'boolean attribute': ['input(checked)', '<input checked="checked"/>'],
@@ -70,6 +76,10 @@ describe('supported feature output', function() {
       'a(style={color:"red"}) hi',
       '<a style="color:red;">hi</a>',
     ],
+    'multi-prop style object attribute': [
+      'div(style={color: "red", "font-weight": "bold"})',
+      '<div style="color:red;font-weight:bold;"></div>',
+    ],
     'id and class shorthand': [
       '#main.box content',
       '<div class="box" id="main">content</div>',
@@ -77,9 +87,9 @@ describe('supported feature output', function() {
     'explicit self closing': ['img/', '<img/>'],
     'dot text-only tag': ['script.\n  var a = 1', '<script>var a = 1</script>'],
     'piped text lines': ['p\n  | line1\n  | line2', '<p>line1\nline2</p>'],
-    'dot block with interpolation tag': [
+    'dot block keeps hash-bracket literal': [
       'p.\n  raw text #[b bold]',
-      '<p>raw text <b>bold</b></p>',
+      '<p>raw text #[b bold]</p>',
     ],
     'empty attribute parens': ['div()', '<div></div>'],
     'plain leading text': ['| just text', 'just text'],
@@ -185,18 +195,11 @@ describe('strip-comments', function() {
 describe('more supported syntax', function() {
   var cases = {
     'attributes block': ['div&attributes({"a":1})', '<div a="1"></div>'],
-    'inline interpolation kept literal': ['p hi #{name} bye', '<p>hi #{name} bye</p>'],
-    'escaped interpolation': ['p hi \\#{name}', '<p>hi \\#{name}</p>'],
-    'tag interpolation in text': ['p a #[em b] c', '<p>a <em>b</em> c</p>'],
-    'nested tag interpolation': ['p #[em #[b x]]', '<p><em><b>x</b></em></p>'],
+    'hash interpolation kept literal': ['p hi #{name} bye', '<p>hi #{name} bye</p>'],
+    'bang interpolation kept literal': ['p hi !{name} bye', '<p>hi !{name} bye</p>'],
+    'hash-bracket kept literal in text': ['p a #[em b] c', '<p>a #[em b] c</p>'],
     'multiline attributes': ['input(\n  type="text"\n)', '<input type="text"/>'],
     'chained block expansion': ['a: b: c hi', '<a><b><c>hi</c></b></a>'],
-    'empty named block': ['block content', ''],
-    'block append': ['block append content', ''],
-    'block prepend': ['block prepend content', ''],
-    'bare append': ['append content', ''],
-    'bare prepend': ['prepend content', ''],
-    'yield': ['yield', ''],
   };
   Object.keys(cases).forEach(function(name) {
     it('renders ' + name, function() {

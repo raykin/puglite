@@ -3,6 +3,12 @@
  *
  * Wraps @angular-builders/custom-webpack browser builder and auto-injects
  * the puglite webpack configuration for .pug template support.
+ *
+ * Why custom-webpack instead of the default esbuild pipeline: Angular 17+
+ * builds with esbuild for speed, but esbuild plugins run *after* Angular
+ * validates templates. custom-webpack uses webpack loaders that transform
+ * templates *before* Angular processes them — the only reliable hook for
+ * compile-time .pug transformation.
  */
 
 const path = require('path');

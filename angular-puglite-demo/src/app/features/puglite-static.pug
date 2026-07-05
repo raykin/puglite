@@ -1,0 +1,12 @@
+//- Compile-only feature coverage asserted against the raw puglite output
+//- (Angular strips comments and would reject namespaced custom elements,
+//- so these are verified on the emitted HTML string, not a rendered DOM).
+
+//visible comment
+p.after-visible bar
+//- silent comment should vanish
+p.after-silent baz
+
+fb:foo-bar
+fb:user:role
+rss(xmlns:atom="atom")
