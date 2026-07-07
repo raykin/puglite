@@ -58,7 +58,6 @@
     "with": "^7.0.2"
   },
   "devDependencies": {
-    "@webdiscus/pug-loader": "^2.11.0",
     "jest": "^30.2.0",
     "pug": "^3.0.4"
   },

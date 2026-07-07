@@ -259,13 +259,11 @@ declare module 'pug-lexer' {
       | WhileToken
       | YieldToken;
 
-    export type LexerFunction = (type: string, exp?: any) => boolean;
     export interface LexerOptions {
       filename: string;
       interpolated?: boolean;
       startingLine?: number;
       startingColumn?: number;
-      plugins?: LexerFunction[];
     }
     export class Lexer {
       input: string;
@@ -274,7 +272,6 @@ declare module 'pug-lexer' {
       interpolated: boolean;
       lineno: number;
       colno: number;
-      plugins: LexerFunction[];
       indentStack: number[];
       indentRe: RegExp | null;
       interpolationAllowed: boolean;
