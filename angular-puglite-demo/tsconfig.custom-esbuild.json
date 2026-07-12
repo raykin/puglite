@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/custom-esbuild",
+    "types": []
+  },
+  "files": [
+    "src/main-custom-esbuild.ts"
+  ],
+  "include": [
+    "src/app/app.config.ts",
+    "src/app/showcase/app.ts"
+  ]
+}

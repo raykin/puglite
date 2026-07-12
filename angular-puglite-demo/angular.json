@@ -54,9 +54,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ]
+            "styles": ["src/styles.css"]
           },
           "configurations": {
             "production": {
@@ -114,9 +112,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ]
+            "styles": ["src/styles.css"]
           },
           "configurations": {
             "production": {
@@ -156,9 +152,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ]
+            "styles": ["src/styles.css"]
           },
           "configurations": {
             "production": {
@@ -183,6 +177,68 @@
             }
           },
           "defaultConfiguration": "production"
+        },
+        "build-custom-esbuild": {
+          "builder": "@angular-builders/custom-esbuild:application",
+          "options": {
+            "plugins": ["./esbuild/pug-fs-intercept-plugin.js"],
+            "outputPath": "dist/angular-puglite-demo-custom-esbuild",
+            "index": "src/index.html",
+            "browser": "src/main-custom-esbuild.ts",
+            "tsConfig": "tsconfig.custom-esbuild.json",
+            "aot": true,
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": ["src/styles.css"]
+          },
+          "configurations": {
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "build-application": {
+          "builder": "puglite:application",
+          "options": {
+            "plugins": ["./esbuild/banner-marker-plugin.js"],
+            "outputPath": {
+              "base": "dist/angular-puglite-demo-application",
+              "browser": ""
+            },
+            "index": "src/index.html",
+            "browser": "src/main-custom-esbuild.ts",
+            "tsConfig": "tsconfig.custom-esbuild.json",
+            "aot": true,
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": ["src/styles.css"]
+          },
+          "configurations": {
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "serve-application": {
+          "builder": "puglite:application-dev-server",
+          "options": {
+            "buildTarget": "angular-puglite-demo:build-application:development",
+            "port": 4299
+          }
         },
         "serve-webdiscus": {
           "builder": "@angular-builders/custom-webpack:dev-server",

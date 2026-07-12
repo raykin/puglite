@@ -64,10 +64,17 @@
   "peerDependencies": {
     "@angular-builders/custom-webpack": ">=18.0.0",
     "@angular-devkit/architect": ">=0.1800.0",
-    "@angular-devkit/build-angular": ">=18.0.0"
+    "@angular-devkit/build-angular": ">=18.0.0",
+    "@angular/build": ">=18.0.0"
   },
   "peerDependenciesMeta": {
     "@angular-builders/custom-webpack": {
+      "optional": true
+    },
+    "@angular-devkit/build-angular": {
+      "optional": true
+    },
+    "@angular/build": {
       "optional": true
     }
   },
