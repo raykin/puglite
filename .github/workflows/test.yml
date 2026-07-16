@@ -23,4 +23,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
+      - run: npm install
+        working-directory: angular-puglite-demo
       - run: npm test
