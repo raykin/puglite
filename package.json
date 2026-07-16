@@ -17,6 +17,7 @@
     "registry": "https://registry.npmjs.org"
   },
   "main": "lib",
+  "types": "./lib/index.d.ts",
   "builders": "builders.json",
   "exports": {
     ".": "./lib/index.js",

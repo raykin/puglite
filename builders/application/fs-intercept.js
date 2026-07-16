@@ -9,6 +9,7 @@
  */
 
 const fs = require("fs");
+const { Readable } = require("stream");
 const lex = require("../../lib/lexer");
 const parse = require("../../lib/parser");
 const generateCode = require("../../lib/code-gen");
@@ -48,21 +49,41 @@ function compileIfPug(path, content) {
   return content;
 }
 
+let origSync;
+let origPromise;
+let origStream;
+
 function patchFs() {
   if (patched) return stats;
   patched = true;
 
-  const origSync = fs.readFileSync;
+  origSync = fs.readFileSync;
   fs.readFileSync = function (path, options) {
     return compileIfPug(path, origSync.call(this, path, options));
   };
 
-  const origPromise = fs.promises.readFile;
+  origPromise = fs.promises.readFile;
   fs.promises.readFile = async function (path, options) {
     return compileIfPug(path, await origPromise.call(this, path, options));
+  };
+
+  origStream = fs.createReadStream;
+  fs.createReadStream = function (path, options) {
+    if (typeof path === "string" && path.endsWith(".pug")) {
+      return Readable.from([compileIfPug(path, origSync.call(fs, path))]);
+    }
+    return origStream.call(this, path, options);
   };
 
   return stats;
 }
 
-module.exports = { patchFs, stats };
+function unpatchFs() {
+  if (!patched) return;
+  patched = false;
+  fs.readFileSync = origSync;
+  fs.promises.readFile = origPromise;
+  fs.createReadStream = origStream;
+}
+
+module.exports = { patchFs, unpatchFs, stats };

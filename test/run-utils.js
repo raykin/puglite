@@ -2,14 +2,6 @@ var fs = require('fs');
 var assert = require('assert');
 var pug = require('../');
 
-var filters = {
-  custom: function(str, options) {
-    assert(options.opt === 'val');
-    assert(options.num === 2);
-    return 'BEGIN' + str + 'END';
-  },
-};
-
 // test cases
 
 function writeFileSync(filename, data) {
@@ -45,8 +37,6 @@ function testSingle(it, suffix, test) {
       filename: path,
       pretty: true,
       basedir: __dirname + '/cases' + suffix,
-      filters: filters,
-      filterAliases: {markdown: 'markdown-it'},
     });
     var actual = fn({title: 'Pug'});
 
@@ -67,16 +57,12 @@ function testSingle(it, suffix, test) {
       pretty: true,
       compileDebug: false,
       basedir: __dirname + '/cases' + suffix,
-      filters: filters,
-      filterAliases: {markdown: 'markdown-it'},
     });
     var clientCodeDebug = pug.compileClient(str, {
       filename: path,
       pretty: true,
       compileDebug: true,
       basedir: __dirname + '/cases' + suffix,
-      filters: filters,
-      filterAliases: {markdown: 'markdown-it'},
     });
     writeFileSync(
       __dirname + '/output' + suffix + '/' + test + '.js',
@@ -85,14 +71,8 @@ function testSingle(it, suffix, test) {
         pretty: false,
         compileDebug: false,
         basedir: __dirname + '/cases' + suffix,
-        filters: filters,
-        filterAliases: {markdown: 'markdown-it'},
       })
     );
-    if (/filter/.test(test)) {
-      actual = actual.replace(/\n| /g, '');
-      html = html.replace(/\n| /g, '');
-    }
     if (/mixins-unused/.test(test)) {
       assert(
         /never-called/.test(str),
@@ -107,22 +87,15 @@ function testSingle(it, suffix, test) {
     actual = Function('pug', clientCode + '\nreturn template;')()({
       title: 'Pug',
     });
-    if (/filter/.test(test)) {
-      actual = actual.replace(/\n| /g, '');
-    }
     expect(actual.trim()).toEqual(html);
     actual = Function('pug', clientCodeDebug + '\nreturn template;')()({
       title: 'Pug',
     });
-    if (/filter/.test(test)) {
-      actual = actual.replace(/\n| /g, '');
-    }
     expect(actual.trim()).toEqual(html);
   });
 }
 
 module.exports = {
-  filters,
   findCases,
   testSingle,
 };

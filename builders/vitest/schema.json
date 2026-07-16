@@ -3,6 +3,11 @@
   "title": "Puglite Vitest Builder",
   "description": "Vitest test runner with Puglite template support",
   "type": "object",
-  "properties": {},
+  "properties": {
+    "environment": {
+      "type": "string",
+      "description": "Vitest test environment (e.g. jsdom, happy-dom, node). Defaults to jsdom."
+    }
+  },
   "additionalProperties": true
 }

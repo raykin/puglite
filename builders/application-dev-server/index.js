@@ -15,7 +15,7 @@ process.env.NG_BUILD_PARALLEL_TS = "0";
 const path = require("path");
 const { createRequire } = require("module");
 const debug = require("util").debuglog("puglite");
-const { patchFs } = require("../application/fs-intercept");
+const { patchFs, unpatchFs } = require("../application/fs-intercept");
 const { loadEsbuildPlugins } = require("../application");
 
 const projectRequire = createRequire(path.join(process.cwd(), "package.json"));
@@ -50,24 +50,27 @@ function patchBuilderContext(context, buildTarget) {
 async function* servePugApplication(options, context) {
   debug("servePugApplication() called");
   patchFs();
+  try {
+    const { targetFromTargetString } = projectRequire(
+      "@angular-devkit/architect",
+    );
+    const buildTarget = targetFromTargetString(options.buildTarget);
+    const buildTargetOptions = await context.getTargetOptions(buildTarget);
+    const buildPlugins = loadEsbuildPlugins(
+      buildTargetOptions.plugins,
+      context.workspaceRoot,
+    );
+    patchBuilderContext(context, buildTarget);
 
-  const { targetFromTargetString } = projectRequire(
-    "@angular-devkit/architect",
-  );
-  const buildTarget = targetFromTargetString(options.buildTarget);
-  const buildTargetOptions = await context.getTargetOptions(buildTarget);
-  const buildPlugins = loadEsbuildPlugins(
-    buildTargetOptions.plugins,
-    context.workspaceRoot,
-  );
-  patchBuilderContext(context, buildTarget);
-
-  const { executeDevServerBuilder } = projectRequire("@angular/build");
-  yield* executeDevServerBuilder(
-    options,
-    context,
-    buildPlugins.length ? { buildPlugins } : undefined,
-  );
+    const { executeDevServerBuilder } = projectRequire("@angular/build");
+    yield* executeDevServerBuilder(
+      options,
+      context,
+      buildPlugins.length ? { buildPlugins } : undefined,
+    );
+  } finally {
+    unpatchFs();
+  }
 }
 
 const { createBuilder } = projectRequire("@angular-devkit/architect");
