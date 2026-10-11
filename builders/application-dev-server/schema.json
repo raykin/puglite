@@ -46,7 +46,8 @@
       "oneOf": [
         { "type": "array", "items": { "type": "string" } },
         { "type": "boolean" }
-      ]
+      ],
+      "default": []
     },
     "open": {
       "type": "boolean",
@@ -82,11 +83,13 @@
     },
     "inspect": {
       "description": "Activate debugging inspector.",
-      "oneOf": [{ "type": "string" }, { "type": "boolean" }]
+      "oneOf": [{ "type": "string" }, { "type": "boolean" }],
+      "default": false
     },
     "prebundle": {
       "description": "Enable and control the Vite-based development server's prebundling capabilities.",
-      "oneOf": [{ "type": "boolean" }, { "type": "object" }]
+      "oneOf": [{ "type": "boolean" }, { "type": "object" }],
+      "default": true
     },
     "define": {
       "type": "object",

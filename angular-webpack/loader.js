@@ -3,29 +3,14 @@
  * Compiles .pug files to HTML at build time
  */
 
-const lex = require('../lib/lexer');
-const parse = require('../lib/parser');
-const generateCode = require('../lib/code-gen');
-const stripComments = require('../lib/strip-comments');
-const runtimeWrap = require('../lib/runtime-wrap');
+const compileHtml = require('../lib/compile-html');
 
 module.exports = function pugliteLoader(source) {
   if (this.cacheable) this.cacheable(true);
   const filename = this.resourcePath;
 
   try {
-    // Compile: lex → parse → generate → wrap → execute
-    const tokens = lex(source, { filename });
-    const strippedTokens = stripComments(tokens, { filename });
-    const ast = parse(strippedTokens, { filename, src: source });
-    const js = generateCode(ast, {
-      compileDebug: false,
-      pretty: false,
-      inlineRuntimeFunctions: false,
-      templateName: 'template'
-    });
-    const templateFn = runtimeWrap(js);
-    const html = templateFn({});
+    const html = compileHtml(source, { filename });
 
     // Return as CommonJS module
     return `module.exports = ${JSON.stringify(html)};`;

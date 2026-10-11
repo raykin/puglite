@@ -52,45 +52,6 @@ function testSingle(it, suffix, test) {
       )
       .trim()
       .replace(/\r/g, '');
-    var clientCode = pug.compileClient(str, {
-      filename: path,
-      pretty: true,
-      compileDebug: false,
-      basedir: __dirname + '/cases' + suffix,
-    });
-    var clientCodeDebug = pug.compileClient(str, {
-      filename: path,
-      pretty: true,
-      compileDebug: true,
-      basedir: __dirname + '/cases' + suffix,
-    });
-    writeFileSync(
-      __dirname + '/output' + suffix + '/' + test + '.js',
-      pug.compileClient(str, {
-        filename: path,
-        pretty: false,
-        compileDebug: false,
-        basedir: __dirname + '/cases' + suffix,
-      })
-    );
-    if (/mixins-unused/.test(test)) {
-      assert(
-        /never-called/.test(str),
-        'never-called is in the pug file for mixins-unused'
-      );
-      assert(
-        !/never-called/.test(clientCode),
-        'never-called should be removed from the code'
-      );
-    }
-    expect(actual.trim()).toEqual(html);
-    actual = Function('pug', clientCode + '\nreturn template;')()({
-      title: 'Pug',
-    });
-    expect(actual.trim()).toEqual(html);
-    actual = Function('pug', clientCodeDebug + '\nreturn template;')()({
-      title: 'Pug',
-    });
     expect(actual.trim()).toEqual(html);
   });
 }

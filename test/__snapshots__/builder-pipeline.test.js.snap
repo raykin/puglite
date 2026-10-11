@@ -1,0 +1,380 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`builder pipeline output angular-bindings: pretty: false 1`] = `"<input [value]="test"/><input (click)="test()"/><input [(ngModel)]="email"/><input type="email" [(ngModel)]="email" name="email"/><div *ngIf="show"></div>"`;
+
+exports[`builder pipeline output angular-bindings: pretty: true 1`] = `
+"
+<input [value]="test"/>
+<input (click)="test()"/>
+<input [(ngModel)]="email"/>
+<input type="email" [(ngModel)]="email" name="email"/>
+<div *ngIf="show"></div>"
+`;
+
+exports[`builder pipeline output basic: pretty: false 1`] = `"<html><body><h1>Title</h1></body></html>"`;
+
+exports[`builder pipeline output basic: pretty: true 1`] = `
+"
+<html>
+  <body>
+    <h1>Title</h1>
+  </body>
+</html>"
+`;
+
+exports[`builder pipeline output blanks: pretty: false 1`] = `"<ul><li>foo</li><li>bar</li><li>baz</li></ul>"`;
+
+exports[`builder pipeline output blanks: pretty: true 1`] = `
+"
+<ul>
+  <li>foo</li>
+  <li>bar</li>
+  <li>baz</li>
+</ul>"
+`;
+
+exports[`builder pipeline output block-expansion.shorthands: pretty: false 1`] = `"<ul><li class="list-item"><div class="foo"><div id="bar">baz</div></div></li></ul>"`;
+
+exports[`builder pipeline output block-expansion.shorthands: pretty: true 1`] = `
+"
+<ul>
+  <li class="list-item">
+    <div class="foo">
+      <div id="bar">baz</div>
+    </div>
+  </li>
+</ul>"
+`;
+
+exports[`builder pipeline output block-expansion: pretty: false 1`] = `"<ul><li><a href="#">foo</a></li><li><a href="#">bar</a></li></ul><p>baz</p>"`;
+
+exports[`builder pipeline output block-expansion: pretty: true 1`] = `
+"
+<ul>
+  <li><a href="#">foo</a></li>
+  <li><a href="#">bar</a></li>
+</ul>
+<p>baz</p>"
+`;
+
+exports[`builder pipeline output blockquote: pretty: false 1`] = `"<figure><blockquote>Try to define yourself by what you do, and you&#8217;ll burnout every time. You are. That is enough. I rest in that.</blockquote><figcaption>from @thefray at 1:43pm on May 10</figcaption></figure>"`;
+
+exports[`builder pipeline output blockquote: pretty: true 1`] = `
+"
+<figure>
+  <blockquote>Try to define yourself by what you do, and you&#8217;ll burnout every time. You are. That is enough. I rest in that.</blockquote>
+  <figcaption>from @thefray at 1:43pm on May 10</figcaption>
+</figure>"
+`;
+
+exports[`builder pipeline output classes: pretty: false 1`] = `"<a class="foo bar baz"></a><a class="foo bar baz"></a><a class="foo-bar_baz"></a><a class="foo baz"></a>"`;
+
+exports[`builder pipeline output classes: pretty: true 1`] = `"<a class="foo bar baz"></a><a class="foo bar baz"></a><a class="foo-bar_baz"></a><a class="foo baz"></a>"`;
+
+exports[`builder pipeline output classes-empty: pretty: false 1`] = `"<a></a><a></a><a></a>"`;
+
+exports[`builder pipeline output classes-empty: pretty: true 1`] = `"<a></a><a></a><a></a>"`;
+
+exports[`builder pipeline output comments: pretty: false 1`] = `
+"<!-- foo--><ul><!-- bar--><li>one</li><!-- baz--><li>two</li></ul><!--ul
+  li foo
+--><!-- block// inline follow
+li three
+--><!-- block// inline followed by tags
+ul
+  li four
+--><!--if IE lt 9// inline
+script(src='/lame.js')
+// end-inline
+--><p>five</p><div class="foo">// not a comment</div>"
+`;
+
+exports[`builder pipeline output comments: pretty: true 1`] = `
+"
+<!-- foo-->
+<ul>
+  <!-- bar-->
+  <li>one</li>
+  <!-- baz-->
+  <li>two</li>
+</ul>
+<!--
+ul
+  li foo
+
+-->
+<!-- block
+// inline follow
+li three
+
+-->
+<!-- block
+// inline followed by tags
+ul
+  li four
+
+-->
+<!--if IE lt 9
+// inline
+script(src='/lame.js')
+// end-inline
+
+-->
+<p>five</p>
+<div class="foo">// not a comment</div>"
+`;
+
+exports[`builder pipeline output doctype.custom: pretty: false 1`] = `"<!DOCTYPE custom stuff>"`;
+
+exports[`builder pipeline output doctype.custom: pretty: true 1`] = `"<!DOCTYPE custom stuff>"`;
+
+exports[`builder pipeline output doctype.default: pretty: false 1`] = `"<!DOCTYPE html><html><body><h1>Title</h1></body></html>"`;
+
+exports[`builder pipeline output doctype.default: pretty: true 1`] = `
+"<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Title</h1>
+  </body>
+</html>"
+`;
+
+exports[`builder pipeline output doctype.keyword: pretty: false 1`] = `"<!DOCTYPE html>"`;
+
+exports[`builder pipeline output doctype.keyword: pretty: true 1`] = `"<!DOCTYPE html>"`;
+
+exports[`builder pipeline output html5: pretty: false 1`] = `"<!DOCTYPE html><input type="checkbox" checked><input type="checkbox" checked><input type="checkbox">"`;
+
+exports[`builder pipeline output html5: pretty: true 1`] = `
+"<!DOCTYPE html>
+<input type="checkbox" checked>
+<input type="checkbox" checked>
+<input type="checkbox">"
+`;
+
+exports[`builder pipeline output namespaces: pretty: false 1`] = `"<fb:user:role>Something</fb:user:role><foo fb:foo="bar"></foo>"`;
+
+exports[`builder pipeline output namespaces: pretty: true 1`] = `
+"
+<fb:user:role>Something</fb:user:role>
+<foo fb:foo="bar"></foo>"
+`;
+
+exports[`builder pipeline output nesting: pretty: false 1`] = `"<ul><li>a</li><li>b</li><li><ul><li>c</li><li>d</li></ul></li><li>e</li></ul>"`;
+
+exports[`builder pipeline output nesting: pretty: true 1`] = `
+"
+<ul>
+  <li>a</li>
+  <li>b</li>
+  <li>
+    <ul>
+      <li>c</li>
+      <li>d</li>
+    </ul>
+  </li>
+  <li>e</li>
+</ul>"
+`;
+
+exports[`builder pipeline output pipeless-comments: pretty: false 1`] = `
+"<!--     .foo
+	.bar
+.hey-->"
+`;
+
+exports[`builder pipeline output pipeless-comments: pretty: true 1`] = `
+"
+<!--
+     .foo
+	.bar
+.hey
+-->"
+`;
+
+exports[`builder pipeline output pre: pretty: false 1`] = `
+"<pre>foo
+bar
+baz
+</pre><pre><code>foo
+bar
+baz</code></pre>"
+`;
+
+exports[`builder pipeline output pre: pretty: true 1`] = `
+"
+<pre>foo
+bar
+baz
+</pre>
+<pre><code>foo
+bar
+baz</code></pre>"
+`;
+
+exports[`builder pipeline output quotes: pretty: false 1`] = `"<p>"foo"</p><p>'foo'</p>"`;
+
+exports[`builder pipeline output quotes: pretty: true 1`] = `
+"
+<p>"foo"</p>
+<p>'foo'</p>"
+`;
+
+exports[`builder pipeline output script.whitespace: pretty: false 1`] = `
+"<script>if (foo) {
+  
+  bar();
+
+}</script>"
+`;
+
+exports[`builder pipeline output script.whitespace: pretty: true 1`] = `
+"
+<script>
+  if (foo) {
+    
+    bar();
+  
+  }
+</script>"
+`;
+
+exports[`builder pipeline output self-closing-html: pretty: false 1`] = `"<!DOCTYPE html><html><body><br/></body></html>"`;
+
+exports[`builder pipeline output self-closing-html: pretty: true 1`] = `
+"<!DOCTYPE html>
+<html>
+  <body><br/></body>
+</html>"
+`;
+
+exports[`builder pipeline output single-period: pretty: false 1`] = `"<span>.</span>"`;
+
+exports[`builder pipeline output single-period: pretty: true 1`] = `"<span>.</span>"`;
+
+exports[`builder pipeline output source: pretty: false 1`] = `"<html><audio preload="auto" autobuffer="autobuffer" controls="controls"><source src="foo"/><source src="bar"/></audio></html>"`;
+
+exports[`builder pipeline output source: pretty: true 1`] = `
+"
+<html>
+  <audio preload="auto" autobuffer="autobuffer" controls="controls">
+    <source src="foo"/>
+    <source src="bar"/>
+  </audio>
+</html>"
+`;
+
+exports[`builder pipeline output template: pretty: false 1`] = `
+"<script type="text/x-template"><article><h2>{{title}}</h2><p>{{description}}</p></article></script><script type="text/x-template">article
+  h2 {{title}}
+  p {{description}}</script>"
+`;
+
+exports[`builder pipeline output template: pretty: true 1`] = `
+"
+<script type="text/x-template">
+  <article>
+    <h2>{{title}}</h2>
+    <p>{{description}}</p>
+  </article>
+</script>
+<script type="text/x-template">
+  article
+    h2 {{title}}
+    p {{description}}
+</script>"
+`;
+
+exports[`builder pipeline output text: pretty: false 1`] = `
+"<option value="">-- (selected) --</option><p></p><p></p><p>foo
+bar
+
+
+baz</p><p>foo
+
+
+bar
+baz
+</p>foo
+
+
+bar
+baz
+<pre>foo
+  bar
+    baz
+.</pre><pre>foo
+  bar
+    baz
+.
+</pre>foo
+  bar
+    baz
+."
+`;
+
+exports[`builder pipeline output text: pretty: true 1`] = `
+"
+<option value="">-- (selected) --</option>
+<p></p>
+<p></p>
+<p>
+  foo
+  bar
+  
+  
+  baz
+</p>
+<p>
+  foo
+  
+  
+  bar
+  baz
+  
+</p>foo
+
+
+bar
+baz
+
+<pre>foo
+  bar
+    baz
+.</pre>
+<pre>foo
+  bar
+    baz
+.
+</pre>foo
+  bar
+    baz
+."
+`;
+
+exports[`builder pipeline output text-block: pretty: false 1`] = `"<label>Username:<input type="text" name="user[name]"/></label><label>Password:<input type="text" name="user[pass]"/></label>"`;
+
+exports[`builder pipeline output text-block: pretty: true 1`] = `
+"
+<label>Username:
+  <input type="text" name="user[name]"/>
+</label>
+<label>Password:
+  <input type="text" name="user[pass]"/>
+</label>"
+`;
+
+exports[`builder pipeline output utf8bom: pretty: false 1`] = `"<p>"foo"</p>"`;
+
+exports[`builder pipeline output utf8bom: pretty: true 1`] = `
+"
+<p>"foo"</p>"
+`;
+
+exports[`builder pipeline output xml: pretty: false 1`] = `"<?xml version="1.0" encoding="utf-8" ?><category term="some term"/><link>http://google.com</link>"`;
+
+exports[`builder pipeline output xml: pretty: true 1`] = `
+"<?xml version="1.0" encoding="utf-8" ?>
+<category term="some term"/>
+<link>http://google.com</link>"
+`;

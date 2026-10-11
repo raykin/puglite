@@ -27,8 +27,8 @@ is not puglite's compiler.
   `builders/dev-server` are functionally equivalent to `ngx-pug-builders`
   (both wrap `@angular-builders/custom-webpack` + one `.pug` webpack rule).
 - **The compiler is in the noise.** Cold builds compile each `.pug` once via
-  puglite's pure-JS pipeline (`lexer → parser → strip-comments → code-gen →
-runtime-wrap`); measurement showed this is not the lever (below).
+  puglite's pure-JS pipeline (`lexer → strip-comments → parser → html-gen`,
+in `lib/compile-html.js`); measurement showed this is not the lever (below).
 
 ## Measured results (2026-06)
 

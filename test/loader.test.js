@@ -32,7 +32,7 @@ describe('angular-webpack loader', function() {
 
   it('throws (does not return an empty module) on a compile error', function() {
     var ctx = makeContext('broken.pug');
-    // include is rejected by code-gen ("not supported in puglite")
+    // include is rejected by the lexer ("not supported in puglite")
     assert.throws(
       function() {
         loader.call(ctx, 'include ./partial.pug');

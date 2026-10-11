@@ -9,7 +9,7 @@ const dir = path.join(__dirname, 'fixtures');
 fs.mkdirSync(dir, { recursive: true });
 
 // deep.pug — a single deeply nested chain (stresses the parser's nesting
-// stack and the code-gen indentation handling).
+// stack and the HTML generator's indentation handling).
 function genDeep(levels) {
   const lines = [];
   for (let i = 0; i < levels; i++) {
@@ -20,7 +20,7 @@ function genDeep(levels) {
 }
 
 // attrs.pug — many elements each carrying many attributes (stresses the
-// lexer's attribute parser and pug_attr code-gen).
+// lexer's attribute parser and attribute rendering).
 function genAttrs(elements, attrsPer) {
   const lines = ['.attr-stress'];
   for (let e = 0; e < elements; e++) {

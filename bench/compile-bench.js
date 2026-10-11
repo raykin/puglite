@@ -8,7 +8,7 @@
 // Reports peak RSS, peak heapUsed, and wall time. Memory and speed track
 // together for a build-time compiler, so all three are measured in one run.
 //
-// Mirrors the real webpack path (lib/lexer -> lib/parser -> lib/code-gen),
+// Mirrors the real webpack path (lib/lexer -> lib/parser -> lib/html-gen),
 // which is where cold-build time/memory actually goes. The loader does NOT
 // use exports.compile / exports.cache, so this forces cache:false to keep
 // the module-level cache out of the measurement.
@@ -41,10 +41,11 @@ let peakRss = 0;
 let peakHeap = 0;
 for (let i = 0; i < iterations; i++) {
   for (const src of sources) {
-    // compileClient: same signature in pug and puglite. Generates the
-    // template function source (lex -> parse -> code-gen) without executing
-    // it, so it never throws on missing locals and works on any corpus.
-    engine.compileClient(src, { filename: 'x.pug', cache: false });
+    // pug: compileClient generates the template function source without
+    // executing it, so it never throws on missing locals.
+    // puglite: compile builds the HTML (lex -> parse -> html-gen).
+    if (engineName === 'pug') engine.compileClient(src, { filename: 'x.pug', cache: false });
+    else engine.compile(src, { filename: 'x.pug', cache: false });
   }
   const m = process.memoryUsage();
   if (m.rss > peakRss) peakRss = m.rss;

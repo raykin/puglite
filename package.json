@@ -1,6 +1,6 @@
 {
   "name": "puglite",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "A clean, whitespace-sensitive template language for writing HTML",
   "keywords": [
     "html",
@@ -52,11 +52,8 @@
     "character-parser": "^4.0.0",
     "constantinople": "^4.0.1",
     "doctypes": "^1.1.0",
-    "is-expression": "^4.0.0",
-    "js-stringify": "^1.0.2",
     "token-stream": "^1.0.0",
-    "void-elements": "^3.1.0",
-    "with": "^7.0.2"
+    "void-elements": "^3.1.0"
   },
   "devDependencies": {
     "jest": "^30.2.0",

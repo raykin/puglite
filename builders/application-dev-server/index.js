@@ -15,7 +15,11 @@ process.env.NG_BUILD_PARALLEL_TS = "0";
 const path = require("path");
 const { createRequire } = require("module");
 const debug = require("util").debuglog("puglite");
-const { patchFs, unpatchFs } = require("../application/fs-intercept");
+const {
+  patchFs,
+  unpatchFs,
+  failOnPugErrors,
+} = require("../application/fs-intercept");
 const { loadEsbuildPlugins } = require("../application");
 
 const projectRequire = createRequire(path.join(process.cwd(), "package.json"));
@@ -47,14 +51,24 @@ function patchBuilderContext(context, buildTarget) {
   };
 }
 
+// Same defaults as Angular's dev server: a missing project or target in
+// buildTarget falls back to the current project and "build".
+function resolveBuildTarget(options, context) {
+  const { targetFromTargetString } = projectRequire(
+    "@angular-devkit/architect",
+  );
+  return targetFromTargetString(
+    options.buildTarget ?? "::development",
+    context.target?.project,
+    "build",
+  );
+}
+
 async function* servePugApplication(options, context) {
   debug("servePugApplication() called");
   patchFs();
   try {
-    const { targetFromTargetString } = projectRequire(
-      "@angular-devkit/architect",
-    );
-    const buildTarget = targetFromTargetString(options.buildTarget);
+    const buildTarget = resolveBuildTarget(options, context);
     const buildTargetOptions = await context.getTargetOptions(buildTarget);
     const buildPlugins = loadEsbuildPlugins(
       buildTargetOptions.plugins,
@@ -63,10 +77,13 @@ async function* servePugApplication(options, context) {
     patchBuilderContext(context, buildTarget);
 
     const { executeDevServerBuilder } = projectRequire("@angular/build");
-    yield* executeDevServerBuilder(
-      options,
-      context,
-      buildPlugins.length ? { buildPlugins } : undefined,
+    yield* failOnPugErrors(
+      executeDevServerBuilder(
+        options,
+        context,
+        buildPlugins.length ? { buildPlugins } : undefined,
+      ),
+      context.logger,
     );
   } finally {
     unpatchFs();
@@ -76,3 +93,4 @@ async function* servePugApplication(options, context) {
 const { createBuilder } = projectRequire("@angular-devkit/architect");
 module.exports = createBuilder(servePugApplication);
 module.exports.default = module.exports;
+module.exports.resolveBuildTarget = resolveBuildTarget;

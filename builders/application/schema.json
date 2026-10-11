@@ -99,16 +99,19 @@
     },
     "optimization": {
       "description": "Enables optimization of the build output.",
-      "oneOf": [{ "type": "boolean" }, { "type": "object" }]
+      "oneOf": [{ "type": "boolean" }, { "type": "object" }],
+      "default": true
     },
     "sourceMap": {
       "description": "Output source maps for scripts and styles.",
-      "oneOf": [{ "type": "boolean" }, { "type": "object" }]
+      "oneOf": [{ "type": "boolean" }, { "type": "object" }],
+      "default": false
     },
     "outputHashing": {
       "type": "string",
       "description": "Define the output filename cache-busting hashing mode.",
-      "enum": ["none", "all", "media", "bundles"]
+      "enum": ["none", "all", "media", "bundles"],
+      "default": "none"
     },
     "aot": {
       "type": "boolean",
@@ -122,11 +125,13 @@
     },
     "extractLicenses": {
       "type": "boolean",
-      "description": "Extract all licenses in a separate file."
+      "description": "Extract all licenses in a separate file.",
+      "default": true
     },
     "serviceWorker": {
       "description": "Generates a service worker configuration.",
-      "oneOf": [{ "type": "boolean" }, { "type": "string" }]
+      "oneOf": [{ "type": "boolean" }, { "type": "string" }],
+      "default": false
     },
     "baseHref": {
       "type": "string",
@@ -140,16 +145,19 @@
     "externalDependencies": {
       "type": "array",
       "description": "Exclude the listed external dependencies from being bundled into the bundle.",
-      "items": { "type": "string" }
+      "items": { "type": "string" },
+      "default": []
     },
     "allowedCommonJsDependencies": {
       "type": "array",
       "description": "A list of CommonJS packages that are allowed to be used without a build time warning.",
-      "items": { "type": "string" }
+      "items": { "type": "string" },
+      "default": []
     },
     "namedChunks": {
       "type": "boolean",
-      "description": "Use file name for lazy loaded chunks."
+      "description": "Use file name for lazy loaded chunks.",
+      "default": false
     },
     "deleteOutputPath": {
       "type": "boolean",
@@ -167,7 +175,8 @@
     },
     "verbose": {
       "type": "boolean",
-      "description": "Adds more details to output logging."
+      "description": "Adds more details to output logging.",
+      "default": false
     },
     "progress": {
       "type": "boolean",

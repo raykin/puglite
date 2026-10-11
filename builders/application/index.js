@@ -19,7 +19,7 @@ process.env.NG_BUILD_PARALLEL_TS = "0";
 const path = require("path");
 const { createRequire } = require("module");
 const debug = require("util").debuglog("puglite");
-const { patchFs, unpatchFs } = require("./fs-intercept");
+const { patchFs, unpatchFs, failOnPugErrors } = require("./fs-intercept");
 
 const projectRequire = createRequire(path.join(process.cwd(), "package.json"));
 
@@ -80,10 +80,13 @@ async function* buildPugApplication(options, context) {
   try {
     const { buildApplication } = projectRequire("@angular/build");
 
-    yield* buildApplication(
-      options,
-      context,
-      codePlugins.length ? { codePlugins } : undefined,
+    yield* failOnPugErrors(
+      buildApplication(
+        options,
+        context,
+        codePlugins.length ? { codePlugins } : undefined,
+      ),
+      context.logger,
     );
     debug(`pug templates compiled: ${stats.compiled}`);
   } finally {
@@ -95,3 +98,4 @@ const { createBuilder } = projectRequire("@angular-devkit/architect");
 module.exports = createBuilder(buildPugApplication);
 module.exports.default = module.exports;
 module.exports.loadEsbuildPlugins = loadEsbuildPlugins;
+module.exports.buildPugApplication = buildPugApplication;

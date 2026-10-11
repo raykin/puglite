@@ -87,6 +87,240 @@ describe("application builder fs-intercept", function () {
     assert.ok(failure, "reading a broken .pug should crash the process");
     assert.match(failure.stderr, /Puglite compilation failed/);
   });
+
+  // TypeScript's sys.readFile swallows read errors and returns undefined,
+  // which Angular turns into an empty template. The intercept must record
+  // the error so the builder can fail the build.
+  it("records pug compile errors that TypeScript swallows", function () {
+    const out = runNodeScript(
+      `
+      const { createRequire } = require('module');
+      const fs = require('fs');
+      const os = require('os');
+      const path = require('path');
+      const ts = createRequire(path.join(process.cwd(), 'package.json'))('typescript');
+      const { patchFs, stats } = require(${JSON.stringify(fsInterceptPath)});
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'puglite-fsint-'));
+      const bad = path.join(dir, 'bad.pug');
+      fs.writeFileSync(bad, 'div(unclosed');
+      patchFs();
+      const viaTs = ts.sys.readFile(bad);
+      const recorded = [...stats.errors.entries()].map(([f, e]) => [f, e.message]);
+      fs.writeFileSync(bad, 'p fixed');
+      const fixed = ts.sys.readFile(bad);
+      console.log(JSON.stringify({ viaTs: viaTs === undefined ? null : viaTs, recorded, bad, fixed, left: stats.errors.size }));
+    `,
+      demoDir,
+    );
+    const result = JSON.parse(out);
+    assert.strictEqual(result.viaTs, null);
+    assert.strictEqual(result.recorded.length, 1);
+    assert.strictEqual(result.recorded[0][0], result.bad);
+    assert.match(result.recorded[0][1], /Puglite compilation failed/);
+    assert.strictEqual(result.fixed, "<p>fixed</p>");
+    assert.strictEqual(result.left, 0);
+  });
+
+  it("stops failing builds for a broken .pug that was deleted", function () {
+    const out = runNodeScript(`
+      const fs = require('fs');
+      const os = require('os');
+      const path = require('path');
+      const { patchFs, failOnPugErrors } = require(${JSON.stringify(fsInterceptPath)});
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'puglite-fsint-'));
+      const bad = path.join(dir, 'bad.pug');
+      fs.writeFileSync(bad, 'div(unclosed');
+      patchFs();
+      try { fs.readFileSync(bad); } catch {}
+      async function* builds() {
+        yield { success: true };
+        fs.unlinkSync(bad);
+        yield { success: true };
+      }
+      (async () => {
+        const results = [];
+        const logger = { error() {} };
+        for await (const r of failOnPugErrors(builds(), logger)) results.push(r.success);
+        console.log(JSON.stringify(results));
+      })();
+    `);
+    assert.deepStrictEqual(JSON.parse(out), [false, true]);
+  });
+
+  it("unpatchFs restores the original fs functions", function () {
+    const out = runNodeScript(`
+      const fs = require('fs');
+      const orig = [fs.readFileSync, fs.promises.readFile, fs.createReadStream];
+      const { patchFs, unpatchFs } = require(${JSON.stringify(fsInterceptPath)});
+      patchFs();
+      const patched = [fs.readFileSync, fs.promises.readFile, fs.createReadStream]
+        .map((fn, i) => fn !== orig[i]);
+      unpatchFs();
+      const restored = [fs.readFileSync, fs.promises.readFile, fs.createReadStream]
+        .map((fn, i) => fn === orig[i]);
+      console.log(JSON.stringify({ patched, restored }));
+    `);
+    const result = JSON.parse(out);
+    assert.deepStrictEqual(result.patched, [true, true, true]);
+    assert.deepStrictEqual(result.restored, [true, true, true]);
+  });
+});
+
+describe("builder schemas", function () {
+  const angularBuildDir = path.join(
+    demoDir,
+    "node_modules",
+    "@angular",
+    "build",
+    "src",
+    "builders",
+  );
+
+  // Angular reads several options without its own fallback and relies on
+  // schema defaults (prebundle, extractLicenses), so ours must match.
+  it.each([
+    ["application", "application"],
+    ["application-dev-server", "dev-server"],
+  ])("%s keeps Angular's defaults", function (pugliteName, angularName) {
+    const ours = require(
+      path.join(repoRoot, "builders", pugliteName, "schema.json"),
+    ).properties;
+    const angular = require(
+      path.join(angularBuildDir, angularName, "schema.json"),
+    ).properties;
+    const mismatches = Object.keys(ours)
+      .filter((key) => angular[key] && "default" in angular[key])
+      .filter(
+        (key) =>
+          JSON.stringify(ours[key].default) !==
+          JSON.stringify(angular[key].default),
+      );
+    assert.deepStrictEqual(mismatches, []);
+  });
+});
+
+describe("application builders with a stubbed @angular/build", function () {
+  const builderIndexPath = path.join(
+    repoRoot,
+    "builders",
+    "application",
+    "index.js",
+  );
+  const devServerIndexPath = path.join(
+    repoRoot,
+    "builders",
+    "application-dev-server",
+    "index.js",
+  );
+
+  it("forces aot, fails on pug errors and unpatches fs after a throw", function () {
+    const out = runNodeScript(
+      `
+      const Module = require('module');
+      const fs = require('fs');
+      const os = require('os');
+      const path = require('path');
+      const projectRequire = Module.createRequire(path.join(process.cwd(), 'package.json'));
+      const ts = projectRequire('typescript');
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'puglite-stub-'));
+      fs.writeFileSync(path.join(dir, 'package.json'), '{"name":"stub-app"}');
+      const good = path.join(dir, 'good.pug');
+      const bad = path.join(dir, 'bad.pug');
+      fs.writeFileSync(good, 'p ok');
+      fs.writeFileSync(bad, 'div(unclosed');
+
+      const origRead = fs.readFileSync;
+      let mode;
+      const seen = [];
+      const stubPath = projectRequire.resolve('@angular/build');
+      const stub = new Module(stubPath);
+      stub.loaded = true;
+      stub.exports = {
+        buildApplication: async function* (options) {
+          seen.push({ mode, aot: options.aot, patched: fs.readFileSync !== origRead });
+          if (mode === 'throw') throw new Error('boom');
+          ts.sys.readFile(mode === 'bad' ? bad : good);
+          yield { success: true };
+        },
+      };
+      require.cache[stubPath] = stub;
+
+      const { buildPugApplication } = require(${JSON.stringify(builderIndexPath)});
+      const warnings = [];
+      const errors = [];
+      const context = {
+        workspaceRoot: dir,
+        logger: { warn: (m) => warnings.push(m), error: (m) => errors.push(m) },
+      };
+      async function collect(it) {
+        const results = [];
+        for await (const r of it) results.push(r.success);
+        return results;
+      }
+      (async () => {
+        mode = 'good';
+        const goodResults = await collect(buildPugApplication({ aot: false }, context));
+        mode = 'bad';
+        const badResults = await collect(buildPugApplication({}, context));
+        mode = 'throw';
+        let thrown = null;
+        try { await collect(buildPugApplication({}, context)); } catch (e) { thrown = e.message; }
+        console.log(JSON.stringify({
+          seen, goodResults, badResults, thrown, warnings, errors,
+          restored: fs.readFileSync === origRead,
+        }));
+      })();
+    `,
+      demoDir,
+    );
+    const result = JSON.parse(out);
+    assert.deepStrictEqual(
+      result.seen.map((s) => [s.aot, s.patched]),
+      [
+        [true, true],
+        [true, true],
+        [true, true],
+      ],
+    );
+    assert.strictEqual(result.warnings.length, 1);
+    assert.match(result.warnings[0], /requires AOT/);
+    assert.deepStrictEqual(result.goodResults, [true]);
+    assert.deepStrictEqual(result.badResults, [false]);
+    assert.strictEqual(result.errors.length, 1);
+    assert.match(result.errors[0], /Puglite compilation failed for .*bad\.pug/);
+    assert.strictEqual(result.thrown, "boom");
+    assert.strictEqual(result.restored, true);
+  });
+
+  it("dev-server fills in the project and target like Angular does", function () {
+    const out = runNodeScript(
+      `
+      const { resolveBuildTarget } = require(${JSON.stringify(devServerIndexPath)});
+      const context = { target: { project: 'demo', target: 'serve' } };
+      console.log(JSON.stringify({
+        short: resolveBuildTarget({ buildTarget: ':build-application:development' }, context),
+        full: resolveBuildTarget({ buildTarget: 'other:build-application' }, context),
+        missing: resolveBuildTarget({}, context),
+      }));
+    `,
+      demoDir,
+    );
+    const result = JSON.parse(out);
+    assert.deepStrictEqual(result.short, {
+      project: "demo",
+      target: "build-application",
+      configuration: "development",
+    });
+    assert.deepStrictEqual(result.full, {
+      project: "other",
+      target: "build-application",
+    });
+    assert.deepStrictEqual(result.missing, {
+      project: "demo",
+      target: "build",
+      configuration: "development",
+    });
+  });
 });
 
 describe("stencil empty-glob auto-silence", function () {
@@ -199,6 +433,29 @@ describe("puglite:application builder", function () {
     assert.ok(
       mainJs.includes("puglite-plugin-marker"),
       "esbuild plugin from the plugins option was not applied",
+    );
+  });
+
+  it("fails the build on a broken pug template", function () {
+    const pugFile = path.join(demoDir, "src", "app", "showcase", "hello.pug");
+    const pugSource = fs.readFileSync(pugFile, "utf8");
+    let failure;
+    try {
+      fs.writeFileSync(pugFile, "div(unclosed\n  p broken\n");
+      execFileSync(
+        "npx",
+        ["ng", "run", "angular-puglite-demo:build-application"],
+        { cwd: demoDir, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+      );
+    } catch (error) {
+      failure = error;
+    } finally {
+      fs.writeFileSync(pugFile, pugSource);
+    }
+    assert.ok(failure, "build with a broken .pug exited 0");
+    assert.match(
+      `${failure.stdout}${failure.stderr}`,
+      /Puglite compilation failed for .*hello\.pug/,
     );
   });
 });

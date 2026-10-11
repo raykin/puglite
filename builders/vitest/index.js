@@ -30,13 +30,7 @@ async function* buildVitest(options, context) {
     .filter((arg) => !arg.startsWith("--") && arg.endsWith(".spec.ts"));
   const filters = options.include || cliArgs;
 
-  // Load puglite compiler modules
-  const libPath = path.resolve(__dirname, "../../lib");
-  const lex = require(`${libPath}/lexer`);
-  const parse = require(`${libPath}/parser`);
-  const generateCode = require(`${libPath}/code-gen`);
-  const stripComments = require(`${libPath}/strip-comments`);
-  const runtimeWrap = require(`${libPath}/runtime-wrap`);
+  const compileHtml = require("../../lib/compile-html");
 
   // Vite plugin: Transform .pug imports to HTML strings
   const pugVitePlugin = {
@@ -48,20 +42,7 @@ async function* buildVitest(options, context) {
 
       try {
         const pugSource = readFileSync(cleanId, "utf-8");
-        const tokens = lex(pugSource, { filename: cleanId });
-        const strippedTokens = stripComments(tokens, { filename: cleanId });
-        const ast = parse(strippedTokens, {
-          filename: cleanId,
-          src: pugSource,
-        });
-        const js = generateCode(ast, {
-          compileDebug: false,
-          pretty: false,
-          inlineRuntimeFunctions: false,
-          templateName: "template",
-        });
-        const templateFn = runtimeWrap(js);
-        const html = templateFn();
+        const html = compileHtml(pugSource, { filename: cleanId });
 
         return `export default ${JSON.stringify(html)};`;
       } catch (error) {

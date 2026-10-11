@@ -12,9 +12,11 @@
 //                (the EXACT API @webdiscus/pug-loader calls in its loader)
 //
 // Aspects measured, per fixture and for the full corpus:
-//   - compile time   : source generation (lex -> parse -> code-gen), no execute
-//   - render time    : compile + build Function + execute -> HTML string
-//   - output size    : generated JS body bytes, rendered HTML bytes
+//   - compile time   : pug: JS source generation, no execute;
+//                      puglite: compile() (lex -> parse -> HTML)
+//   - render time    : pug: compile + build Function + execute -> HTML string;
+//                      puglite: render(), the same work as compile()
+//   - output size    : generated JS body bytes (pug only), rendered HTML bytes
 //   - memory         : peak RSS, peak heapUsed, median heapUsed across passes
 
 'use strict';
@@ -27,12 +29,20 @@ const root = path.resolve(__dirname, '..');
 
 // ---- engine adapters: unify on { compile(src), render(src) } -----------------
 function makeEngine(name) {
-  // Identical options for every engine, matching what puglite's real webpack
-  // loader (angular-webpack/loader.js) uses, so the comparison is apples-to-
-  // apples and representative of the shipped build path.
+  // Identical options for every engine, so the comparison is apples-to-apples.
+  // puglite ignores compileDebug and inlineRuntimeFunctions; its webpack
+  // loader (angular-webpack/loader.js) compiles with pretty off.
   const OPTS = { cache: false, compileDebug: false, pretty: false, inlineRuntimeFunctions: false };
-  if (name === 'puglite' || name === 'pug') {
-    const e = require(name === 'pug' ? 'pug' : path.join(root, 'lib'));
+  if (name === 'puglite') {
+    const e = require(path.join(root, 'lib'));
+    return {
+      label: name,
+      compile: (src, filename) => e.compile(src, { ...OPTS, filename }),
+      render: (src, filename) => e.render(src, { ...OPTS, filename }),
+    };
+  }
+  if (name === 'pug') {
+    const e = require('pug');
     return {
       label: name,
       compile: (src, filename) => e.compileClient(src, { ...OPTS, filename }),
@@ -130,7 +140,7 @@ for (const fx of fixtures) {
     srcBytes: fx.src.length,
     compile: summarize(compileNs),
     render: summarize(renderNs),
-    jsBytes: typeof jsBody === 'string' ? jsBody.length : 0,
+    jsBytes: typeof jsBody === 'string' ? jsBody.length : '-',
     htmlBytes: typeof html === 'string' ? html.length : 0,
   });
 }
@@ -183,7 +193,7 @@ if (asJson) {
     console.log(
       `  ${fx.name.padEnd(12)} ${f2(fx.compile.median_us).padStart(9)}  ` +
       `${f2(fx.render.median_us).padStart(9)}   ` +
-      `js=${fx.jsBytes}b html=${fx.htmlBytes}b`
+      `js=${fx.jsBytes === '-' ? '-' : fx.jsBytes + 'b'} html=${fx.htmlBytes}b`
     );
   }
   const c = result.corpus;

@@ -50,6 +50,87 @@ describe('disabled features throw at compile', function() {
   });
 });
 
+describe('quoted attribute values', function() {
+  var cases = {
+    'plain strings': ['a(x="1" y=\'2\')', '<a x="1" y="2"></a>'],
+    'comma separated': ['a(x="1",y="2")', '<a x="1" y="2"></a>'],
+    'joined with +': ['a(x="1"+"2" y="3")', '<a x="12" y="3"></a>'],
+    'joined with + and spaces': [
+      'a(x="1" + "2" y="3" z="/a" + 1 w=1 - 2)',
+      '<a x="12" y="3" z="/a1" w="-1"></a>',
+    ],
+    'escaped quote': ['a(x="1\\"2")', '<a x="1&quot;2"></a>'],
+    'other quote inside': ['a(x="it\'s")', '<a x="it\'s"></a>'],
+    'before an Angular binding': [
+      'button(type="button" (click)="go()" [x]="y" *ngIf="z")',
+      '<button type="button" (click)="go()" [x]="y" *ngIf="z"></button>',
+    ],
+    'across lines': ['a(\n  x="1"\n  y="2"\n)', '<a x="1" y="2"></a>'],
+    'empty': ['a(x="")', '<a x=""></a>'],
+  };
+
+  Object.keys(cases).forEach(function(name) {
+    it(name, function() {
+      assert.equal(pug.render(cases[name][0]), cases[name][1]);
+    });
+  });
+
+  it('keeps line and column of the next attribute', function() {
+    try {
+      pug.render('a(x="1" y=foo)', {filename: 'x.pug'});
+      assert.fail('expected an error');
+    } catch (err) {
+      assert.equal(err.code, 'PUGLITE:NON_CONSTANT_ATTRIBUTE');
+      assert.equal(err.line, 1);
+      assert.equal(err.column, 9);
+    }
+  });
+});
+
+describe('rejected attribute syntax', function() {
+  var rejected = {
+    '&attributes': ['div&attributes({"a":1})', 'PUGLITE:UNSUPPORTED_SYNTAX'],
+    '&attributes after attrs': [
+      'div(id="x")&attributes({"a":1})',
+      'PUGLITE:UNSUPPORTED_SYNTAX',
+    ],
+    'variable attribute': ['a(href=foo) x', 'PUGLITE:NON_CONSTANT_ATTRIBUTE'],
+    'member attribute': ['a(href=foo.bar) x', 'PUGLITE:NON_CONSTANT_ATTRIBUTE'],
+    'variable class': ['div(class=cls)', 'PUGLITE:NON_CONSTANT_ATTRIBUTE'],
+    'variable style': ['div(style=css)', 'PUGLITE:NON_CONSTANT_ATTRIBUTE'],
+    'call attribute': ['a(href=url())', 'PUGLITE:NON_CONSTANT_ATTRIBUTE'],
+  };
+
+  Object.keys(rejected).forEach(function(name) {
+    it('rejects ' + name, function() {
+      var c = rejected[name];
+      var err;
+      try {
+        pug.render(c[0], {filename: 'x.pug'});
+      } catch (e) {
+        err = e;
+      }
+      assert.ok(err, 'expected a compile error');
+      assert.equal(err.code, c[1]);
+      assert.equal(err.line, 1);
+      assert.equal(err.filename, 'x.pug');
+    });
+  });
+
+  it('names the attribute and value in the message', function() {
+    assert.throws(function() {
+      pug.render('p\n  a(href=foo) x');
+    }, /:2:[\s\S]*Attribute "href" has a non-constant value `foo`/);
+  });
+
+  it('still accepts constant expressions', function() {
+    assert.equal(
+      pug.render('a(href="/a"+1 class=["x", "y"] style={color: "red"} data-n=2 disabled)'),
+      '<a class="x y" href="/a1" style="color:red;" data-n="2" disabled="disabled"></a>'
+    );
+  });
+});
+
 describe('supported feature output', function() {
   var cases = {
     'block comment without indent first line': ['//\n  a\n  b', '<!--a\nb-->'],
@@ -104,19 +185,6 @@ describe('supported feature output', function() {
 });
 
 describe('runtime helpers', function() {
-  it('merge collapses an array of attribute objects', function() {
-    assert.deepEqual(rt.merge([{a: '1'}, {b: '2'}, {a: '3'}]), {a: '3', b: '2'});
-  });
-  it('merge concatenates style strings', function() {
-    assert.deepEqual(rt.merge({style: 'color:red'}, {style: 'font:x'}), {
-      style: 'color:red;font:x;',
-    });
-  });
-  it('merge concatenates classes', function() {
-    assert.deepEqual(rt.merge({class: 'a'}, {class: ['b', 'c']}), {
-      class: ['a', 'b', 'c'],
-    });
-  });
   it('attr uses toJSON when present', function() {
     assert.equal(rt.attr('data', {toJSON: function() { return 'x'; }}, true, false), ' data="x"');
   });
@@ -126,9 +194,6 @@ describe('runtime helpers', function() {
   it('attr drops empty style', function() {
     assert.equal(rt.attr('style', '', false, false), '');
   });
-  it('attrs serializes style objects', function() {
-    assert.equal(rt.attrs({style: {color: 'red'}}, false), ' style="color:red;"');
-  });
   it('escape replaces all html chars', function() {
     assert.equal(rt.escape('<>&"x'), '&lt;&gt;&amp;&quot;x');
   });
@@ -137,24 +202,6 @@ describe('runtime helpers', function() {
   });
   it('classes escapes per the escaping mask', function() {
     assert.equal(rt.classes(['a', '<b>'], [false, true]), 'a &lt;b&gt;');
-  });
-  it('rethrow passes through non-errors', function() {
-    assert.throws(function() { rt.rethrow('nope'); }, /nope|./);
-  });
-  it('rethrow appends the line number when no source', function() {
-    assert.throws(function() { rt.rethrow(new Error('boom'), null, 5); }, /boom on line 5/);
-  });
-  it('rethrow builds a source context window', function() {
-    assert.throws(
-      function() { rt.rethrow(new Error('boom'), 'x', 2, 'a\nb\nc\nd\ne'); },
-      /> 2\| b/
-    );
-  });
-  it('rethrow reports unreadable files', function() {
-    assert.throws(
-      function() { rt.rethrow(new Error('boom'), '/no/such/file', 2); },
-      /could not read from/
-    );
   });
 });
 
@@ -194,7 +241,6 @@ describe('strip-comments', function() {
 
 describe('more supported syntax', function() {
   var cases = {
-    'attributes block': ['div&attributes({"a":1})', '<div a="1"></div>'],
     'hash interpolation kept literal': ['p hi #{name} bye', '<p>hi #{name} bye</p>'],
     'bang interpolation kept literal': ['p hi !{name} bye', '<p>hi !{name} bye</p>'],
     'hash-bracket kept literal in text': ['p a #[em b] c', '<p>a #[em b] c</p>'],

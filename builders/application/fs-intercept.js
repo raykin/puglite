@@ -10,27 +10,14 @@
 
 const fs = require("fs");
 const { Readable } = require("stream");
-const lex = require("../../lib/lexer");
-const parse = require("../../lib/parser");
-const generateCode = require("../../lib/code-gen");
-const stripComments = require("../../lib/strip-comments");
-const runtimeWrap = require("../../lib/runtime-wrap");
+const compileHtml = require("../../lib/compile-html");
 
-const stats = { compiled: 0 };
+const stats = { compiled: 0, errors: new Map() };
 let patched = false;
 
 function compilePug(source, filename) {
   try {
-    const tokens = lex(source, { filename });
-    const strippedTokens = stripComments(tokens, { filename });
-    const ast = parse(strippedTokens, { filename, src: source });
-    const js = generateCode(ast, {
-      compileDebug: false,
-      pretty: false,
-      inlineRuntimeFunctions: false,
-      templateName: "template",
-    });
-    return runtimeWrap(js)({});
+    return compileHtml(source, { filename });
   } catch (error) {
     error.message = `Puglite compilation failed for ${filename}: ${error.message}`;
     throw error;
@@ -43,7 +30,16 @@ function compileIfPug(path, content) {
     const source = Buffer.isBuffer(content)
       ? content.toString("utf8")
       : content;
-    const html = compilePug(source, path);
+    let html;
+    try {
+      html = compilePug(source, path);
+    } catch (error) {
+      // TypeScript's sys.readFile swallows this throw and Angular renders an
+      // empty template, so keep the error for the builder to report.
+      stats.errors.set(path, error);
+      throw error;
+    }
+    stats.errors.delete(path);
     return Buffer.isBuffer(content) ? Buffer.from(html) : html;
   }
   return content;
@@ -56,6 +52,7 @@ let origStream;
 function patchFs() {
   if (patched) return stats;
   patched = true;
+  stats.errors.clear();
 
   origSync = fs.readFileSync;
   fs.readFileSync = function (path, options) {
@@ -86,4 +83,18 @@ function unpatchFs() {
   fs.createReadStream = origStream;
 }
 
-module.exports = { patchFs, unpatchFs, stats };
+async function* failOnPugErrors(results, logger) {
+  for await (const result of results) {
+    for (const path of stats.errors.keys()) {
+      if (!fs.existsSync(path)) stats.errors.delete(path);
+    }
+    if (stats.errors.size === 0) {
+      yield result;
+      continue;
+    }
+    for (const error of stats.errors.values()) logger.error(error.message);
+    yield { ...result, success: false };
+  }
+}
+
+module.exports = { patchFs, unpatchFs, failOnPugErrors, stats };

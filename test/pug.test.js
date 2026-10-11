@@ -784,19 +784,6 @@ describe('pug', function() {
     });
   });
 
-  describe('.compileClient()', function() {
-    it('should support pug.compileClient(str)', function() {
-      var src = fs.readFileSync(__dirname + '/cases/basic.pug');
-      var expected = fs
-        .readFileSync(__dirname + '/cases/basic.html', 'utf8')
-        .replace(/\s/g, '');
-      var fn = pug.compileClient(src);
-      fn = Function('pug', fn.toString() + '\nreturn template;')(pug.runtime);
-      var actual = fn({name: 'foo'}).replace(/\s/g, '');
-      expect(actual).toBe(expected);
-    });
-  });
-
   describe('.renderFile()', function() {
     it('will synchronously return a string', function() {
       var expected = fs
@@ -831,11 +818,13 @@ describe('pug', function() {
       });
     });
     it('when given a callback, it calls that with any errors', function(done) {
-      pug.renderFile(__dirname + '/fixtures/runtime.error.pug', function(
+      fs.writeFileSync(__dirname + '/temp/input-error.pug', 'a(href=foo)');
+      pug.renderFile(__dirname + '/temp/input-error.pug', function(
         err,
         actual
       ) {
-        assert.ok(err);
+        fs.unlinkSync(__dirname + '/temp/input-error.pug');
+        assert.equal(err.code, 'PUGLITE:NON_CONSTANT_ATTRIBUTE');
         done();
       });
     });
@@ -869,89 +858,19 @@ describe('pug', function() {
     });
   });
 
-  describe('.compileFileClient(path, options)', function() {
-    it('returns a string form of a function called `template`', function() {
-      var src = pug.compileFileClient(__dirname + '/cases/basic.pug');
-      var expected = fs
-        .readFileSync(__dirname + '/cases/basic.html', 'utf8')
-        .replace(/\s/g, '');
-      var fn = Function('pug', src + '\nreturn template;')(pug.runtime);
-      var actual = fn({name: 'foo'}).replace(/\s/g, '');
-      assert(actual === expected);
+  describe('pretty option', function() {
+    it('indents with a whitespace string', function() {
+      assert.equal(
+        '\n<div>\n\t<p>x</p>\n\t<ul>\n\t\t<li>a</li>\n\t</ul>\n</div>',
+        pug.render('div\n  p x\n  ul\n    li a', {pretty: '\t'})
+      );
     });
-    it('accepts the `name` option to rename the resulting function', function() {
-      var src = pug.compileFileClient(__dirname + '/cases/basic.pug', {
-        name: 'myTemplateName',
-      });
-      var expected = fs
-        .readFileSync(__dirname + '/cases/basic.html', 'utf8')
-        .replace(/\s/g, '');
-      var fn = Function('pug', src + '\nreturn myTemplateName;')(pug.runtime);
-      var actual = fn({name: 'foo'}).replace(/\s/g, '');
-      assert(actual === expected);
-    });
-    it('should support caching (pass 1)', function() {
-      fs.writeFileSync(
-        __dirname + '/temp/input-compileFileClient.pug',
-        '.foo bar'
-      );
-      var src = pug.compileFileClient(
-        __dirname + '/temp/input-compileFileClient.pug',
-        {name: 'myTemplateName', cache: true}
-      );
-      var expected = '<div class="foo">bar</div>';
-      var fn = Function('pug', src + '\nreturn myTemplateName;')(pug.runtime);
-      assert(fn() === expected);
-    });
-    it('should support caching (pass 2)', function() {
-      // Poison the input file
-      fs.writeFileSync(
-        __dirname + '/temp/input-compileFileClient.pug',
-        '.big fat hen'
-      );
-      var src = pug.compileFileClient(
-        __dirname + '/temp/input-compileFileClient.pug',
-        {name: 'myTemplateName', cache: true}
-      );
-      var expected = '<div class="foo">bar</div>';
-      var fn = Function('pug', src + '\nreturn myTemplateName;')(pug.runtime);
-      assert(fn() === expected);
+    it('rejects a string that is not whitespace', function() {
+      assert.throws(function() {
+        pug.render('p', {pretty: 'x'});
+      }, /boolean or whitespace only string/);
     });
   });
-
-  describe('.runtime', function() {
-    describe('.merge', function() {
-      it('merges two attribute objects, giving precedensce to the second object', function() {
-        assert.deepEqual(
-          pug.runtime.merge({}, {class: ['foo', 'bar'], foo: 'bar'}),
-          {class: ['foo', 'bar'], foo: 'bar'}
-        );
-        assert.deepEqual(
-          pug.runtime.merge(
-            {class: ['foo'], foo: 'baz'},
-            {class: ['bar'], foo: 'bar'}
-          ),
-          {class: ['foo', 'bar'], foo: 'bar'}
-        );
-        assert.deepEqual(
-          pug.runtime.merge({class: ['foo', 'bar'], foo: 'bar'}, {}),
-          {class: ['foo', 'bar'], foo: 'bar'}
-        );
-      });
-    });
-    describe('.attrs', function() {
-      it('Renders the given attributes object', function() {
-        assert.equal(pug.runtime.attrs({}), '');
-        assert.equal(pug.runtime.attrs({class: []}), '');
-        assert.equal(pug.runtime.attrs({class: ['foo']}), ' class="foo"');
-        assert.equal(
-          pug.runtime.attrs({class: ['foo'], id: 'bar'}),
-          ' class="foo" id="bar"'
-        );
-      });
-    });
-  });
-
 
   describe('.name', function() {
     it('should have a name attribute', function() {

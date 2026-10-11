@@ -54,7 +54,7 @@ Only the `builder` values change — keep your existing `options`. Under `projec
   }
 ```
 
-**Important:** Puglite requires the **old Angular schema format** — your `build` options must use `main` (not `browser`) and `outputPath`. The newer esbuild schema is not supported because puglite builds via webpack.
+**Important:** Puglite requires the **old Angular schema format** — your `build` options must use `main` (not `browser`) and `outputPath`. For the newer esbuild schema, use `puglite:application` and `puglite:application-dev-server` instead.
 
 ### 3. Use `.pug` Templates
 ```typescript

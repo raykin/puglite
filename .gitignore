@@ -30,3 +30,4 @@ AGENTS.md
 .npmrc
 
 .playwright-mcp/
+/session-log/
