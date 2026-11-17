@@ -20,6 +20,10 @@ const {
   unpatchFs,
   failOnPugErrors,
 } = require("../application/fs-intercept");
+const {
+  patchCompilerHost,
+  unpatchCompilerHost,
+} = require("../application/compiler-host");
 const { loadEsbuildPlugins } = require("../application");
 
 const projectRequire = createRequire(path.join(process.cwd(), "package.json"));
@@ -68,6 +72,7 @@ async function* servePugApplication(options, context) {
   debug("servePugApplication() called");
   patchFs();
   try {
+    patchCompilerHost(projectRequire);
     const buildTarget = resolveBuildTarget(options, context);
     const buildTargetOptions = await context.getTargetOptions(buildTarget);
     const buildPlugins = loadEsbuildPlugins(
@@ -86,6 +91,7 @@ async function* servePugApplication(options, context) {
       context.logger,
     );
   } finally {
+    unpatchCompilerHost();
     unpatchFs();
   }
 }

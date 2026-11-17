@@ -15,6 +15,9 @@ jobs:
     strategy:
       matrix:
         node-version: [22.x, 24.x]
+        angular: [21, 22]
+
+    name: Node ${{ matrix.node-version }} / Angular ${{ matrix.angular }}
 
     steps:
       - uses: actions/checkout@v4
@@ -24,6 +27,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install -g npm@12
       - run: npm install
-      - run: npm install
-        working-directory: angular-puglite-demo
+      - run: echo "PUGLITE_DEMO_DIR=$RUNNER_TEMP/demo-ng${{ matrix.angular }}" >> "$GITHUB_ENV"
+      - run: node scripts/demo-angular.js ${{ matrix.angular }} "$PUGLITE_DEMO_DIR"
       - run: npm test

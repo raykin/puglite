@@ -6,7 +6,9 @@ const path = require("path");
 const { execFileSync, spawn } = require("child_process");
 
 const repoRoot = path.resolve(__dirname, "..");
-const demoDir = path.join(repoRoot, "angular-puglite-demo");
+const demoDir = process.env.PUGLITE_DEMO_DIR
+  ? path.resolve(process.env.PUGLITE_DEMO_DIR)
+  : path.join(repoRoot, "angular-puglite-demo");
 const distDir = path.join(demoDir, "dist", "angular-puglite-demo-application");
 const fsInterceptPath = path.join(
   repoRoot,
@@ -219,6 +221,71 @@ describe("application builder fs-intercept", function () {
     const result = JSON.parse(out);
     assert.deepStrictEqual(result.patched, [true, true, true]);
     assert.deepStrictEqual(result.restored, [true, true, true]);
+  });
+});
+
+describe("application builder compiler-host patch", function () {
+  const compilerHostPath = path.join(
+    repoRoot,
+    "builders",
+    "application",
+    "compiler-host.js",
+  );
+
+  it("reads .pug resources through the real @angular/build compiler host", function () {
+    const out = runNodeScript(
+      `
+      const Module = require('module');
+      const fs = require('fs');
+      const os = require('os');
+      const path = require('path');
+      const projectRequire = Module.createRequire(path.join(process.cwd(), 'package.json'));
+      const { patchCompilerHost, unpatchCompilerHost } = require(${JSON.stringify(compilerHostPath)});
+      const ts = projectRequire('typescript');
+      const buildRoot = path.dirname(projectRequire.resolve('@angular/build/package.json'));
+      const hostModule = projectRequire(path.join(buildRoot, 'src/tools/angular/angular-host.js'));
+      const original = hostModule.createAngularCompilerHost;
+
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'puglite-host-'));
+      const component = path.join(dir, 'app.ts');
+      fs.writeFileSync(component, '');
+      fs.writeFileSync(path.join(dir, 'app.pug'), 'p from pug');
+      fs.writeFileSync(path.join(dir, 'app.html'), '<p>from html</p>');
+      fs.writeFileSync(path.join(dir, 'app.css'), 'p {}');
+
+      const createHost = () => hostModule.createAngularCompilerHost(ts, {}, {
+        externalStylesheets: new Map(),
+        modifiedFiles: new Set(),
+      });
+
+      (async () => {
+        const hashModule = path.join(buildRoot, 'src/utils/hash.js');
+        if (fs.existsSync(hashModule)) await projectRequire(hashModule).initializeHash();
+        patchCompilerHost(projectRequire);
+        patchCompilerHost(projectRequire);
+        const host = createHost();
+        const pugFile = host.resourceNameToFileName('./app.pug', component);
+        const result = {
+          pugFile: path.relative(dir, pugFile),
+          pug: await host.readResource(pugFile),
+          missingPug: host.resourceNameToFileName('./missing.pug', component),
+          html: await host.readResource(host.resourceNameToFileName('./app.html', component)),
+          cssFile: host.resourceNameToFileName('./app.css', component),
+        };
+        unpatchCompilerHost();
+        result.restored = hostModule.createAngularCompilerHost === original;
+        console.log(JSON.stringify(result));
+      })();
+    `,
+      demoDir,
+    );
+    const result = JSON.parse(out);
+    assert.strictEqual(result.pugFile, "app.pug");
+    assert.strictEqual(result.pug, "p from pug");
+    assert.strictEqual(result.missingPug, null);
+    assert.strictEqual(result.html, "<p>from html</p>");
+    assert.match(result.cssFile, /^[^/]+\.css$/);
+    assert.strictEqual(result.restored, true);
   });
 });
 

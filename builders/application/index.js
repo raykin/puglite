@@ -20,6 +20,7 @@ const path = require("path");
 const { createRequire } = require("module");
 const debug = require("util").debuglog("puglite");
 const { patchFs, unpatchFs, failOnPugErrors } = require("./fs-intercept");
+const { patchCompilerHost, unpatchCompilerHost } = require("./compiler-host");
 
 const projectRequire = createRequire(path.join(process.cwd(), "package.json"));
 
@@ -78,6 +79,7 @@ async function* buildPugApplication(options, context) {
 
   const stats = patchFs();
   try {
+    patchCompilerHost(projectRequire);
     const { buildApplication } = projectRequire("@angular/build");
 
     yield* failOnPugErrors(
@@ -90,6 +92,7 @@ async function* buildPugApplication(options, context) {
     );
     debug(`pug templates compiled: ${stats.compiled}`);
   } finally {
+    unpatchCompilerHost();
     unpatchFs();
   }
 }
