@@ -147,6 +147,62 @@ describe("application builder fs-intercept", function () {
     assert.deepStrictEqual(JSON.parse(out), [false, true]);
   });
 
+  function runTemplateSwitch(steps) {
+    return JSON.parse(
+      runNodeScript(`
+      const fs = require('fs');
+      const os = require('os');
+      const path = require('path');
+      const { patchFs, failOnPugErrors } = require(${JSON.stringify(fsInterceptPath)});
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'puglite-fsint-'));
+      const component = path.join(dir, 'app.ts');
+      const bad = path.join(dir, 'bad.pug');
+      fs.writeFileSync(bad, 'div(unclosed');
+      fs.writeFileSync(path.join(dir, 'good.pug'), 'p ok');
+      const useTemplate = (name) => {
+        fs.writeFileSync(component, "@Component({ templateUrl: './" + name + "' }) class App {}");
+        fs.readFileSync(component);
+        try { fs.readFileSync(path.join(dir, name)); } catch {}
+      };
+      patchFs();
+      const steps = ${JSON.stringify(steps)};
+      async function* builds() {
+        for (const step of steps) {
+          if (step === 'unknown-reader') { try { fs.readFileSync(bad); } catch {} }
+          else if (step !== 'no-reads') useTemplate(step);
+          yield { success: true };
+        }
+      }
+      (async () => {
+        const results = [];
+        for await (const r of failOnPugErrors(builds(), { error() {} })) results.push(r.success);
+        console.log(JSON.stringify(results));
+      })();
+    `),
+    );
+  }
+
+  it("stops failing builds once no component uses the broken .pug", function () {
+    assert.deepStrictEqual(runTemplateSwitch(["bad.pug", "good.pug"]), [
+      false,
+      true,
+    ]);
+  });
+
+  it("keeps failing builds while a component still uses the broken .pug", function () {
+    assert.deepStrictEqual(runTemplateSwitch(["bad.pug", "no-reads"]), [
+      false,
+      false,
+    ]);
+  });
+
+  it("keeps failing builds for a broken .pug read without a known component", function () {
+    assert.deepStrictEqual(runTemplateSwitch(["unknown-reader", "no-reads"]), [
+      false,
+      false,
+    ]);
+  });
+
   it("unpatchFs restores the original fs functions", function () {
     const out = runNodeScript(`
       const fs = require('fs');

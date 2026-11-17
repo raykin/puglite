@@ -41,6 +41,7 @@ Templates compile straight to static HTML, so locals passed to them are ignored.
 - A function from `compile()` / `compileFile()` returns the same HTML whatever locals you pass.
 - An attribute value that is not a constant, such as `a(href=foo)`, now fails with `PUGLITE:NON_CONSTANT_ATTRIBUTE`. Bind it in your framework instead: `a([href]="foo")`.
 - `&attributes` now fails with `PUGLITE:UNSUPPORTED_SYNTAX`.
+- Attribute names keep backslashes as written. In 1.x (and Pug), the name of an attribute with no value was read as a JS string, so `div(a\\b)` gave `<div a\b="a\b">`. It now gives `<div a\\b="a\\b">`, the same as `div(a\\b="v")` gives `a\\b`.
 - New esbuild builders: `puglite:application` and `puglite:application-dev-server`.
 
 ## Quick Start with Angular 18+
@@ -82,6 +83,7 @@ esbuild:
 
 - `puglite:application` always builds with AOT. It warns and sets `"aot": true` if your options turn it off.
 - Extra esbuild plugins go in the `plugins` option, as module paths relative to the workspace root.
+- Moving an existing app off webpack: see [MIGRATING-TO-ESBUILD.md](./MIGRATING-TO-ESBUILD.md) for a real app's `angular.json` changes and measured build time and memory.
 
 webpack:
 ```diff
@@ -158,6 +160,7 @@ license notice are retained in [LICENSE](./LICENSE) as required.
 ## Links
 
 - **Examples**: [EXAMPLES.md](./EXAMPLES.md)
+- **webpack → esbuild migration**: [MIGRATING-TO-ESBUILD.md](./MIGRATING-TO-ESBUILD.md)
 - **Custom Webpack builders**: [GitHub](https://github.com/just-jeb/angular-builders)
 
 ## Credits & Thanks

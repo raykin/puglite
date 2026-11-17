@@ -601,6 +601,12 @@ describe('pug', function() {
       );
     });
 
+    it('keeps backslashes in attribute names as written, with or without a value', function() {
+      assert.equal('<div a\\\\b="a\\\\b"></div>', pug.render('div(a\\\\b)'));
+      assert.equal('<div q\\\\="q\\\\"></div>', pug.render('div("q\\\\")'));
+      assert.equal('<div a\\\\b="v"></div>', pug.render('div(a\\\\b="v")'));
+    });
+
     it('should support class attr array', function() {
       assert.equal(
         '<body class="foo bar baz"></body>',

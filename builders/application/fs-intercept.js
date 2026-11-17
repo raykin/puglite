@@ -9,11 +9,51 @@
  */
 
 const fs = require("fs");
+const nodePath = require("path");
 const { Readable } = require("stream");
 const compileHtml = require("../../lib/compile-html");
 
 const stats = { compiled: 0, errors: new Map() };
+const TEMPLATE_URL = /templateUrl\s*:\s*(['"`])([^'"`]+?\.pug)\1/g;
+const templatesByComponent = new Map();
+const templatesEverUsed = new Set();
 let patched = false;
+
+function recordTemplateUrls(path, content) {
+  if (
+    typeof path !== "string" ||
+    !path.endsWith(".ts") ||
+    path.endsWith(".d.ts") ||
+    path.includes("/node_modules/")
+  ) {
+    return;
+  }
+  const source = Buffer.isBuffer(content) ? content.toString("utf8") : content;
+  if (typeof source !== "string" || !source.includes(".pug")) {
+    templatesByComponent.delete(path);
+    return;
+  }
+  const templates = new Set();
+  for (const match of source.matchAll(TEMPLATE_URL)) {
+    const template = nodePath.resolve(nodePath.dirname(path), match[2]);
+    templates.add(template);
+    templatesEverUsed.add(template);
+  }
+  templatesByComponent.set(path, templates);
+}
+
+function isTemplateInUse(template) {
+  if (!templatesEverUsed.has(template)) return true;
+  for (const [component, templates] of templatesByComponent) {
+    if (templates.has(template) && fs.existsSync(component)) return true;
+  }
+  return false;
+}
+
+function onRead(path, content) {
+  recordTemplateUrls(path, content);
+  return compileIfPug(path, content);
+}
 
 function compilePug(source, filename) {
   try {
@@ -53,15 +93,17 @@ function patchFs() {
   if (patched) return stats;
   patched = true;
   stats.errors.clear();
+  templatesByComponent.clear();
+  templatesEverUsed.clear();
 
   origSync = fs.readFileSync;
   fs.readFileSync = function (path, options) {
-    return compileIfPug(path, origSync.call(this, path, options));
+    return onRead(path, origSync.call(this, path, options));
   };
 
   origPromise = fs.promises.readFile;
   fs.promises.readFile = async function (path, options) {
-    return compileIfPug(path, await origPromise.call(this, path, options));
+    return onRead(path, await origPromise.call(this, path, options));
   };
 
   origStream = fs.createReadStream;
@@ -86,7 +128,9 @@ function unpatchFs() {
 async function* failOnPugErrors(results, logger) {
   for await (const result of results) {
     for (const path of stats.errors.keys()) {
-      if (!fs.existsSync(path)) stats.errors.delete(path);
+      if (!fs.existsSync(path) || !isTemplateInUse(path)) {
+        stats.errors.delete(path);
+      }
     }
     if (stats.errors.size === 0) {
       yield result;

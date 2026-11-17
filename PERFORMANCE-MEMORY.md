@@ -82,7 +82,7 @@ compiled HTML for `.pug` templateUrls. Requires `aot: true` (JIT routes
 template reads through esbuild's native Go I/O, which the Node patch cannot
 see).
 
-Measured on kasa (real Ionic app, Angular 22, 114 `.pug` templates), cold
+Measured on a real Ionic app (Angular 22, 114 `.pug` templates), cold
 production builds, peak RSS via `/usr/bin/time -v`:
 
 | path                                            | peak RSS | wall  |
