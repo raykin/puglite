@@ -30,17 +30,60 @@ const html = puglite.render('.container\n  h1 Hello\n  p World');
 // <div class="container"><h1>Hello</h1><p>World</p></div>
 ```
 
+`compile`, `compileFile`, `render`, `renderFile` and `__express` are available.
+Templates compile straight to static HTML, so locals passed to them are ignored.
+
+## Upgrading from 1.x
+
+2.0.0 compiles to static HTML and drops the JS runtime:
+
+- `compileClient`, `compileClientWithDependenciesTracked` and `compileFileClient` are removed.
+- A function from `compile()` / `compileFile()` returns the same HTML whatever locals you pass.
+- An attribute value that is not a constant, such as `a(href=foo)`, now fails with `PUGLITE:NON_CONSTANT_ATTRIBUTE`. Bind it in your framework instead: `a([href]="foo")`.
+- `&attributes` now fails with `PUGLITE:UNSUPPORTED_SYNTAX`.
+- New esbuild builders: `puglite:application` and `puglite:application-dev-server`.
+
 ## Quick Start with Angular 18+
 
+Puglite ships builders for both Angular build systems. Pick the one your
+project already uses: the esbuild builder (`@angular/build:application`, the
+default for new projects) or the webpack builder
+(`@angular-devkit/build-angular:browser`).
+
 ### 1. Install
+
+esbuild (`@angular/build` is already in your project):
+```bash
+npm install -D puglite
+```
+
+webpack:
 ```bash
 npm install -D puglite @angular-builders/custom-webpack
 ```
 
 ### 2. Update `angular.json`
 
-Only the `builder` values change — keep your existing `options`. Under `projects.<your-app>.architect`, swap the `build` and `serve` builders:
+Only the `builder` values change — keep your existing `options`. Under `projects.<your-app>.architect`, swap the `build` and `serve` builders.
 
+esbuild:
+```diff
+  "build": {
+-   "builder": "@angular/build:application",
++   "builder": "puglite:application",
+    "options": { ... }
+  },
+  "serve": {
+-   "builder": "@angular/build:dev-server",
++   "builder": "puglite:application-dev-server",
+    "options": { ... }
+  }
+```
+
+- `puglite:application` always builds with AOT. It warns and sets `"aot": true` if your options turn it off.
+- Extra esbuild plugins go in the `plugins` option, as module paths relative to the workspace root.
+
+webpack:
 ```diff
   "build": {
 -   "builder": "@angular-devkit/build-angular:browser",
@@ -54,7 +97,7 @@ Only the `builder` values change — keep your existing `options`. Under `projec
   }
 ```
 
-**Important:** Puglite requires the **old Angular schema format** — your `build` options must use `main` (not `browser`) and `outputPath`. For the newer esbuild schema, use `puglite:application` and `puglite:application-dev-server` instead.
+`puglite:browser` uses the **old Angular schema format**: your `build` options must use `main` (not `browser`) and `outputPath`.
 
 ### 3. Use `.pug` Templates
 ```typescript
@@ -76,8 +119,8 @@ export class AppComponent {
 
 ## Testing Components
 
-Puglite transforms `.pug` templates at **build time** via a webpack loader. Unit
-test runners (Vitest, Jest) do **not** run the Angular/webpack build, so they have
+Puglite transforms `.pug` templates at **build time** inside the build builders. Unit
+test runners (Vitest, Jest) do **not** run the Angular build, so they have
 no way to resolve a `templateUrl: './foo.component.pug'`. This means:
 
 - ❌ **`TestBed.createComponent()` fails** — Angular tries to load the `.pug`

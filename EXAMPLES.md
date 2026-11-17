@@ -17,6 +17,20 @@ the test specs) demonstrate each feature.
 - **Self-closing tags** - `img`, `br`, `hr`, `input`
 - **Namespaces** - `foo:bar-baz`
 
+## Not Supported
+
+These fail the build with an error that names the feature:
+
+- **Logic** - `if`, `unless`, `else`, `case`, `when`, `default`, `each`, `for`, `while` → `PUGLITE:UNSUPPORTED_SYNTAX`
+- **Mixins** - `mixin`, `+call` → `PUGLITE:UNSUPPORTED_SYNTAX`
+- **Includes & inheritance** - `include`, `extends`, `block`, `append`, `prepend`, `yield` → `PUGLITE:UNSUPPORTED_SYNTAX`
+- **Filters** - `:markdown` → `PUGLITE:UNSUPPORTED_SYNTAX`
+- **`&attributes`** → `PUGLITE:UNSUPPORTED_SYNTAX`
+- **Code** - `p= foo`, `- var x = 1` → `PUGLITE:UNEXPECTED_TEXT`
+- **Non-constant attribute values** - `a(href=foo)` → `PUGLITE:NON_CONSTANT_ATTRIBUTE`
+
+Pug interpolation (`#{x}`, `!{x}`, `#[b x]`) is not an error. It is left in the output as plain text.
+
 ## Use Cases
 
 **Good for:** Static HTML, Angular/React/Vue templates, email templates

@@ -50,6 +50,6 @@ export class App {}
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 22+
 - Angular 20+
 - `@angular-builders/custom-webpack` (peer dependency of puglite)
